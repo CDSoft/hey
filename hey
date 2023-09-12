@@ -1,0 +1,371 @@
+#!/usr/bin/bash
+
+# This file is part of hey.
+ 
+# hey is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# hey is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with hey.  If not, see <https://www.gnu.org/licenses/>.
+#
+# For further information about hey you can visit
+# https://cdelord.fr/hey
+
+PREFIX=~/.local
+REPOS=~/.config/hey/repos
+
+cmd-help()
+{
+    cat <<EOF
+usage: hey options command arguments
+
+Options:
+    -p prefix   installation prefix (~/.local by default)
+
+Commands:
+    help        prints this help message
+    list        list available packets
+    install     install a packet
+
+install arguments
+    packages    package names to install
+                (see list)
+
+EOF
+}
+
+cmd-list()
+{
+    cat <<EOF
+all     install all packets
+
+======== CDSoft softwares =====================================================
+bang    Ninja file generator scriptable in LuaX
+calculadoira
+        simple yet powerful calculator
+lsvg    LuaX interpreter specialized to generate SVG images
+luax    Lua eXtended, a Lua interpreter with a better REPL and useful libraries
+panda   Pandoc Lua filter that works on internal Pandoc’s AST
+tagref  Maintain cross-references in your code
+ypp     Yet another preprocessor, scriptable in LuaX
+
+======== Other softwares ======================================================
+ditaa   DIagrams Through Ascii Art
+pandoc  Swiss-army knife to convert from and to a bunch of document formats
+pandoc-latex-template
+        Clean pandoc LaTeX template to convert your markdown files to PDF or LaTeX
+pandoc-panam-css
+        Pan Am: Simple CSS for Pandoc
+plantuml
+        PlantUML
+typst   Focus on your text and let Typst take care of layout and formatting
+EOF
+}
+
+cmd-install()
+{
+    for package in "$@"
+    do
+        case "$package" in
+            (all)                       install-all ;;
+            (bang)                      install-bang ;;
+            (calculadoira)              install-calculadoira ;;
+            (ditaa)                     install-ditaa ;;
+            (luax)                      install-luax ;;
+            (lsvg)                      install-lsvg ;;
+            (panda)                     install-panda ;;
+            (pandoc)                    install-pandoc ;;
+            (pandoc-latex-template)     install-pandoc-latex-template ;;
+            (pandoc-panam-css)          install-pandoc-panam-css ;;
+            (plantuml)                  install-plantuml ;;
+            (tagref)                    install-tagref ;;
+            (typst)                     install-typst ;;
+            (ypp)                       install-ypp ;;
+            (*) echo "$package: unknown installation method"; exit 1 ;;
+        esac
+    done
+}
+
+gitclone()
+{
+    local url="$1"
+    local dir
+    dir=$(basename "$url")
+    mkdir -p $REPOS
+    if [ -d "$REPOS/$dir" ]
+    then
+        ( cd "$REPOS/$dir" && git fetch && git rebase )
+    else
+        git clone "$url" "$REPOS/$dir"
+    fi
+}
+
+target()
+{
+    [ -x $PREFIX/bin/luax ] || install-luax
+    $PREFIX/bin/luax -e 'print(sys.os.."-"..sys.arch)'
+}
+
+install-all()
+{
+    # shellcheck disable=SC2046
+    cmd-install $(
+        grep "^install-.*()$" "$0" |
+            grep -v "^install-all()$" |
+            sed 's/^install-//' |
+            tr -d '()'
+    )
+}
+
+bang_installed=false
+
+install-bang()
+{
+    $bang_installed && return
+    install-luax
+    gitclone https://github.com/CDSoft/bang
+    PREFIX=$PREFIX ninja install -C $REPOS/bang
+    bang_installed=true
+}
+
+calculadoira_installed=false
+
+install-calculadoira()
+{
+    $calculadoira_installed && return
+    install-luax
+    gitclone https://github.com/CDSoft/calculadoira
+    PREFIX=$PREFIX ninja install -C $REPOS/calculadoira
+    calculadoira_installed=true
+}
+
+ditaa_installed=false
+
+install-ditaa()
+{
+    $ditaa_installed && return
+    local DITAA_VERSION
+    DITAA_VERSION=$(curl -sSL https://api.github.com/repos/stathissideris/ditaa/releases/latest | jq -r .tag_name)
+    mkdir -p $REPOS/ditaa
+    [ -f "$REPOS/ditaa/ditaa-${DITAA_VERSION#v}-standalone.jar" ] \
+        || wget "https://github.com/stathissideris/ditaa/releases/download/${DITAA_VERSION}/ditaa-${DITAA_VERSION#v}-standalone.jar" \
+            -O "$REPOS/ditaa/ditaa-${DITAA_VERSION#v}-standalone.jar"
+    cp -v "$REPOS/ditaa/ditaa-${DITAA_VERSION#v}-standalone.jar" $PREFIX/bin/ditaa.jar
+    ditaa_installed=true
+}
+
+lsvg_installed=false
+
+install-lsvg()
+{
+    $lsvg_installed && return
+    install-luax
+    gitclone https://github.com/CDSoft/lsvg
+    PREFIX=$PREFIX ninja install -C $REPOS/lsvg
+    lsvg_installed=true
+}
+
+luax_installed=false
+
+install-luax()
+{
+    $luax_installed && return
+    gitclone https://github.com/CDSoft/luax
+    PREFIX=$PREFIX ninja install -C $REPOS/luax
+    luax_installed=true
+}
+
+panda_installed=false
+
+install-panda()
+{
+    $panda_installed && return
+    install-pandoc
+    gitclone https://github.com/CDSoft/panda
+    PREFIX=$PREFIX ninja install -C $REPOS/panda
+    panda_installed=true
+}
+
+pandoc_installed=false
+
+install-pandoc()
+{
+    $pandoc_installed && return
+    mkdir -p "$REPOS/pandoc"
+    mkdir -p "$PREFIX/bin"
+    local PANDOC_VERSION
+    PANDOC_VERSION=$(curl -sSL https://api.github.com/repos/jgm/pandoc/releases/latest | jq -r .tag_name)
+    case "$(target)" in
+        (linux-x86_64)
+            local PANDOC_URL=https://github.com/jgm/pandoc/releases/download/${PANDOC_VERSION}/pandoc-${PANDOC_VERSION}-linux-amd64.tar.gz
+            [ -f "$REPOS/pandoc/$(basename "$PANDOC_URL")" ] || wget -c "$PANDOC_URL" -O "$REPOS/pandoc/$(basename "$PANDOC_URL")"
+            tar -C "$REPOS/pandoc/" -xzf "$REPOS/pandoc/$(basename "$PANDOC_URL")"
+            ;;
+        (linux-aarch64)
+            local PANDOC_URL=https://github.com/jgm/pandoc/releases/download/${PANDOC_VERSION}/pandoc-${PANDOC_VERSION}-linux-arm64.tar.gz
+            [ -f "$REPOS/pandoc/$(basename "$PANDOC_URL")" ] || wget -c "$PANDOC_URL" -O "$REPOS/pandoc/$(basename "$PANDOC_URL")"
+            tar -C "$REPOS/pandoc/" -xzf "$REPOS/pandoc/$(basename "$PANDOC_URL")"
+            ;;
+        (windows-x86_64)
+            local PANDOC_URL=https://github.com/jgm/pandoc/releases/download/${PANDOC_VERSION}/pandoc-${PANDOC_VERSION}-windows-x86_64.zip
+            [ -f "$REPOS/pandoc/$(basename "$PANDOC_URL")" ] || wget -c "$PANDOC_URL" -O "$REPOS/pandoc/$(basename "$PANDOC_URL")"
+            unzip -o -q "$REPOS/pandoc/$(basename "$PANDOC_URL")" -d "$REPOS/pandoc/"
+            ;;
+        (macos-x86_64)
+            local PANDOC_URL=https://github.com/jgm/pandoc/releases/download/${PANDOC_VERSION}/pandoc-${PANDOC_VERSION}-x86_64-macOS.zip
+            [ -f "$REPOS/pandoc/$(basename "$PANDOC_URL")" ] || wget -c "$PANDOC_URL" -O "$REPOS/pandoc/$(basename "$PANDOC_URL")"
+            unzip -o -q "$REPOS/pandoc/$(basename "$PANDOC_URL")" -d "$REPOS/pandoc/"
+            ;;
+        (macos-aarch64)
+            local PANDOC_URL=https://github.com/jgm/pandoc/releases/download/${PANDOC_VERSION}/pandoc-${PANDOC_VERSION}-arm64-macOS.zip
+            [ -f "$REPOS/pandoc/$(basename "$PANDOC_URL")" ] || wget -c "$PANDOC_URL" -O "$REPOS/pandoc/$(basename "$PANDOC_URL")"
+            unzip -o -q "$REPOS/pandoc/$(basename "$PANDOC_URL")" -d "$REPOS/pandoc/"
+            ;;
+        (*) echo "$(target): unsupported platform for Pandoc"; exit 1 ;;
+    esac
+    cp -av "$REPOS/pandoc/pandoc-${PANDOC_VERSION}/bin"/* "$PREFIX/bin/"
+    pandoc_installed=true
+}
+
+pandoc_latex_template_installed=false
+
+install-pandoc-latex-template()
+{
+    $pandoc_latex_template_installed && return
+    install-pandoc
+    gitclone https://github.com/Wandmalfarbe/pandoc-latex-template.git
+    mkdir -p $PREFIX/share/pandoc
+    cp -v $REPOS/pandoc-latex-template.git/eisvogel.tex $PREFIX/share/pandoc
+    pandoc_latex_template_installed=true
+}
+
+pandoc_panam_css=false
+
+install-pandoc-panam-css()
+{
+    $pandoc_panam_css && return
+    install-pandoc
+    gitclone https://github.com/CDSoft/pan-am
+    mkdir -p $PREFIX/share/pandoc
+    cp -v $REPOS/pan-am/styling.css $PREFIX/share/pandoc/panam.css
+    pandoc_panam_css=true
+}
+
+plantuml_installed=false
+
+install-plantuml()
+{
+    $plantuml_installed && return
+    local PLANTUML_VERSION
+    PLANTUML_VERSION=$(curl -sSL https://api.github.com/repos/plantuml/plantuml/releases/latest | jq -r .tag_name)
+    mkdir -p $REPOS/plantuml
+    [ -f "$REPOS/plantuml/plantuml-pdf-${PLANTUML_VERSION#v}.jar" ] \
+        || wget "https://github.com/plantuml/plantuml/releases/download/${PLANTUML_VERSION}/plantuml-pdf-${PLANTUML_VERSION#v}.jar" \
+            -O "$REPOS/plantuml/plantuml-pdf-${PLANTUML_VERSION#v}.jar"
+    cp -v "$REPOS/plantuml/plantuml-pdf-${PLANTUML_VERSION#v}.jar" $PREFIX/bin/plantuml.jar
+    plantuml_installed=true
+}
+
+tagref_installed=false
+
+install-tagref()
+{
+    $tagref_installed && return
+    install-luax
+    gitclone https://github.com/CDSoft/tagref
+    PREFIX=$PREFIX ninja install -C $REPOS/tagref
+    tagref_installed=true
+}
+
+typst_installed=false
+
+install-typst()
+{
+    $typst_installed && return
+    local TYPST_VERSION
+    TYPST_VERSION=$(curl -sSL https://api.github.com/repos/typst/typst/releases/latest | jq -r .tag_name)
+    mkdir -p "$REPOS/typst/$TYPST_VERSION"
+    mkdir -p "$PREFIX/bin"
+    case "$(target)" in
+        (linux-x86_64)
+            TYPST_URL=https://github.com/typst/typst/releases/download/${TYPST_VERSION}/typst-x86_64-unknown-linux-musl.tar.xz
+            [ -f "$REPOS/typst/$TYPST_VERSION/$(basename "$TYPST_URL")" ] || wget -c "$TYPST_URL" -O "$REPOS/typst/$TYPST_VERSION/$(basename "$TYPST_URL")"
+            tar -C "$REPOS/typst/$TYPST_VERSION" -xJf "$REPOS/typst/$TYPST_VERSION/$(basename "$TYPST_URL")"
+            cp -a "$REPOS/typst/$TYPST_VERSION/typst-x86_64-unknown-linux-musl/typst" "$PREFIX/bin/"
+            ;;
+        (linux-aarch64)
+            TYPST_URL=https://github.com/typst/typst/releases/download/${TYPST_VERSION}/typst-aarch64-unknown-linux-musl.tar.xz
+            [ -f "$REPOS/typst/$TYPST_VERSION/$(basename "$TYPST_URL")" ] || wget -c "$TYPST_URL" -O "$REPOS/typst/$TYPST_VERSION/$(basename "$TYPST_URL")"
+            tar -C "$REPOS/typst/$TYPST_VERSION" -xJf "$REPOS/typst/$TYPST_VERSION/$(basename "$TYPST_URL")"
+            cp -a "$REPOS/typst/$TYPST_VERSION/typst-aarch64-unknown-linux-musl/typst" "$PREFIX/bin/"
+            ;;
+        (windows-x86_64)
+            TYPST_URL=https://github.com/typst/typst/releases/download/${TYPST_VERSION}/typst-x86_64-pc-windows-msvc.tar.xz
+            [ -f "$REPOS/typst/$TYPST_VERSION/$(basename "$TYPST_URL")" ] || wget -c "$TYPST_URL" -O "$REPOS/typst/$TYPST_VERSION/$(basename "$TYPST_URL")"
+            tar -C "$REPOS/typst/$TYPST_VERSION" -xJf "$REPOS/typst/$TYPST_VERSION/$(basename "$TYPST_URL")"
+            unzip -o -q "$REPOS/typst/$TYPST_VERSION/$(basename "$TYPST_URL")" -d "$REPOS/typst/$TYPST_VERSION/"
+            cp -a "$REPOS/typst/$TYPST_VERSION/typst-x86_64-pc-windows-msvc/typst" "$PREFIX/bin/"
+            ;;
+        (macos-x86_64)
+            TYPST_URL=https://github.com/typst/typst/releases/download/${TYPST_VERSION}/typst-aarch64-x86_64-darwin.tar.xz
+            [ -f "$REPOS/typst/$TYPST_VERSION/$(basename "$TYPST_URL")" ] || wget -c "$TYPST_URL" -O "$REPOS/typst/$TYPST_VERSION/$(basename "$TYPST_URL")"
+            tar -C "$REPOS/typst/$TYPST_VERSION" -xJf "$REPOS/typst/$TYPST_VERSION/$(basename "$TYPST_URL")"
+            cp -a "$REPOS/typst/$TYPST_VERSION/typst-x86_64-apple-darwin/typst" "$PREFIX/bin/"
+            ;;
+        (macos-aarch64)
+            TYPST_URL=https://github.com/typst/typst/releases/download/${TYPST_VERSION}/typst-aarch64-apple-darwin.tar.xz
+            [ -f "$REPOS/typst/$TYPST_VERSION/$(basename "$TYPST_URL")" ] || wget -c "$TYPST_URL" -O "$REPOS/typst/$TYPST_VERSION/$(basename "$TYPST_URL")"
+            tar -C "$REPOS/typst/$TYPST_VERSION" -xJf "$REPOS/typst/$TYPST_VERSION/$(basename "$TYPST_URL")"
+            cp -a "$REPOS/typst/$TYPST_VERSION/typst-aarch64-apple-darwin/typst" "$PREFIX/bin/"
+            ;;
+        (*) echo "$(target): unsupported platform for Typst"; exit 1 ;;
+    esac
+    typst_installed=true
+}
+
+ypp_installed=false
+
+install-ypp()
+{
+    $ypp_installed && return
+    gitclone https://github.com/CDSoft/ypp
+    PREFIX=$PREFIX ninja install -C $REPOS/ypp
+    ypp_installed=true
+}
+
+main()
+{
+    local args=()
+
+    while [ -n "$1" ]
+    do
+        case "$1" in
+            (-p)    PREFIX="$2"; shift 2;;
+            (-*)    echo "$1: unknown option"; exit 1 ;;
+            (*)     args+=("$1"); shift 1 ;;
+        esac
+    done
+
+
+    local cmd="${args[0]}"
+    unset "args[0]"
+    #set -x
+    case "$cmd" in
+        (""|help)    cmd-help ;;
+        (list)    cmd-list ;;
+        (install) echo "Installation prefix: $PREFIX"
+                  cmd-install "${args[@]}"
+                  ;;
+        (*)       echo "$cmd: unknown command"; exit 1 ;;
+    esac
+    set +x
+}
+
+main "$@"
