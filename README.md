@@ -53,21 +53,21 @@ plantuml
 typst   Focus on your text and let Typst take care of layout and formatting
 ```
 
-Package                         Sources
-------------------------------- -----------------------------------------------
-bang                            <https://github.com/CDSoft/bang>
-calculadoira                    <https://github.com/CDSoft/calculadoira>
-lsvg                            <https://github.com/CDSoft/lsvg>
-luax                            <https://github.com/CDSoft/luax>
-panda                           <https://github.com/CDSoft/panda>
-tagref                          <https://github.com/CDSoft/tagref>
-ypp                             <https://github.com/CDSoft/ypp>
-ditaa                           <https://github.com/stathissideris/ditaa>
-pandoc                          <https://pandoc.org>
-pandoc-latex-template           <https://github.com/Wandmalfarbe/pandoc-latex-template>
-pandoc-panam-css                <https://github.com/CDSoft/pan-am>
-plantuml                        <https://github.com/plantuml/plantuml>
-typst                           <https://github.com/typst/typst>
+| Package                         | Sources                                                     |
+| ------------------------------- | ----------------------------------------------------------- |
+| `bang`                          | <https://github.com/CDSoft/bang>                            |
+| `calculadoira`                  | <https://github.com/CDSoft/calculadoira>                    |
+| `lsvg`                          | <https://github.com/CDSoft/lsvg>                            |
+| `luax`                          | <https://github.com/CDSoft/luax>                            |
+| `panda`                         | <https://github.com/CDSoft/panda>                           |
+| `tagref`                        | <https://github.com/CDSoft/tagref>                          |
+| `ypp`                           | <https://github.com/CDSoft/ypp>                             |
+| `ditaa`                         | <https://github.com/stathissideris/ditaa>                   |
+| `pandoc`                        | <https://pandoc.org>                                        |
+| `pandoc-latex-template`         | <https://github.com/Wandmalfarbe/pandoc-latex-template>     |
+| `pandoc-panam-css`              | <https://github.com/CDSoft/pan-am>                          |
+| `plantuml`                      | <https://github.com/plantuml/plantuml>                      |
+| `typst`                         | <https://github.com/typst/typst>                            |
 
 ## Example
 
