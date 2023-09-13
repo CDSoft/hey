@@ -14,6 +14,7 @@ usage: hey options command arguments
 
 Options:
     -p prefix   installation prefix (~/.local by default)
+    -t target   LuaX target (cross-compilation)
 
 Commands:
     help        prints this help message

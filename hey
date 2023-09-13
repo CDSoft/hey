@@ -20,6 +20,8 @@
 
 PREFIX=~/.local
 REPOS=~/.config/hey/repos
+TAGS=~/.config/hey/tags
+TARGET=
 
 cmd-help()
 {
@@ -28,6 +30,7 @@ usage: hey options command arguments
 
 Options:
     -p prefix   installation prefix (~/.local by default)
+    -t target   LuaX target (cross-compilation)
 
 Commands:
     help        prints this help message
@@ -71,13 +74,14 @@ EOF
 
 check-prerequisites()
 {
-    check   figlet  figlet  figlet  false
-    check   git     git     git     true
-    check   curl    curl    curl    true
-    check   jq      jq      jq      true
-    check   wget    wget    wget    true
-    check   tar     tar     tar     true
-    check   unzip   zip     zip     true
+    check   figlet  figlet          figlet          false
+    check   git     git             git             true
+    check   curl    curl            curl            true
+    check   jq      jq              jq              true
+    check   wget    wget            wget            true
+    check   tar     tar             tar             true
+    check   unzip   zip             zip             true
+    check   ninja   ninja-build     ninja-build     true
 }
 
 check()
@@ -144,8 +148,34 @@ gitclone()
 
 target()
 {
-    [ -x $PREFIX/bin/luax ] || install-luax
-    $PREFIX/bin/luax -e 'print(sys.os.."-"..sys.arch)'
+    case "$TARGET" in
+        ("")    [ -x $PREFIX/bin/luax ] || install-luax
+                $PREFIX/bin/luax -e 'print(sys.os.."-"..sys.arch)'
+                ;;
+        (x86_64-linux-*)    echo "linux-x86_64" ;;
+        (aarch64-linux-*)   echo "linux-aarch64" ;;
+        (x86_64-windows-*)  echo "windows-x86_64" ;;
+        (x86_64-macos-*)    echo "macos-x86_64" ;;
+        (aarch64-macos-*)   echo "macos-aarch64" ;;
+        (*)     echo "$TARGET" # the caller shall report an error
+                ;;
+    esac
+}
+
+tag_name()
+{
+    local repo="$1"
+    local request="https://api.github.com/repos/$repo/releases/latest"
+    local tag_file
+    tag_file="$TAGS/$(basename "$repo")"
+    mkdir -p "$TAGS"
+    local age=$(( $(date +%s) - $(stat -c %Y -- "$tag_file" 2>/dev/null || echo 0) ))
+    if [ "$age" -gt 7200 ]
+    then
+        curl -sSL "$request" | jq -r .tag_name > "$tag_file"
+        touch "$tag_file"
+    fi
+    cat "$tag_file"
 }
 
 install-all()
@@ -167,8 +197,19 @@ install-bang()
     install-luax
     figlet Bang
     gitclone https://github.com/CDSoft/bang
-    PREFIX=$PREFIX ninja clean -C $REPOS/bang
+    ninja clean -C $REPOS/bang
     PREFIX=$PREFIX ninja install -C $REPOS/bang
+    local SOURCES
+    SOURCES="$(ls $REPOS/bang/{src,lib}/*.lua) $REPOS/bang/.build/version"
+    case "$TARGET" in
+        (x86_64-linux-gnu)   $REPOS/luax/.build/bin/luax -t x86_64-linux-gnu   -o $PREFIX/bin/bang     $SOURCES ;;
+        (x86_64-linux-musl)  $REPOS/luax/.build/bin/luax -t x86_64-linux-musl  -o $PREFIX/bin/bang     $SOURCES ;;
+        (aarch64-linux-gnu)  $REPOS/luax/.build/bin/luax -t aarch64-linux-gnu  -o $PREFIX/bin/bang     $SOURCES ;;
+        (aarch64-linux-musl) $REPOS/luax/.build/bin/luax -t aarch64-linux-musl -o $PREFIX/bin/bang     $SOURCES ;;
+        (x86_64-windows-gnu) $REPOS/luax/.build/bin/luax -t x86_64-windows-gnu -o $PREFIX/bin/bang.exe $SOURCES && rm $PREFIX/bin/bang ;;
+        (x86_64-macos-none)  $REPOS/luax/.build/bin/luax -t x86_64-macos-none   -o $PREFIX/bin/bang     $SOURCES ;;
+        (aarch64-macos-none) $REPOS/luax/.build/bin/luax -t aarch64-macos-none  -o $PREFIX/bin/bang     $SOURCES ;;
+    esac
     bang_installed=true
 }
 
@@ -180,8 +221,19 @@ install-calculadoira()
     install-luax
     figlet Calculadoira
     gitclone https://github.com/CDSoft/calculadoira
-    PREFIX=$PREFIX ninja clean -C $REPOS/calculadoira
+    ninja clean -C $REPOS/calculadoira
     PREFIX=$PREFIX ninja install -C $REPOS/calculadoira
+    local SOURCES
+    SOURCES="$(ls $REPOS/calculadoira/src/*.lua)"
+    case "$TARGET" in
+        (x86_64-linux-gnu)   $REPOS/luax/.build/bin/luax -t x86_64-linux-gnu   -o $PREFIX/bin/calculadoira     $SOURCES ;;
+        (x86_64-linux-musl)  $REPOS/luax/.build/bin/luax -t x86_64-linux-musl  -o $PREFIX/bin/calculadoira     $SOURCES ;;
+        (aarch64-linux-gnu)  $REPOS/luax/.build/bin/luax -t aarch64-linux-gnu  -o $PREFIX/bin/calculadoira     $SOURCES ;;
+        (aarch64-linux-musl) $REPOS/luax/.build/bin/luax -t aarch64-linux-musl -o $PREFIX/bin/calculadoira     $SOURCES ;;
+        (x86_64-windows-gnu) $REPOS/luax/.build/bin/luax -t x86_64-windows-gnu -o $PREFIX/bin/calculadoira.exe $SOURCES && rm $PREFIX/bin/calculadoira ;;
+        (x86_64-macos-none)  $REPOS/luax/.build/bin/luax -t x86_64-macos-none  -o $PREFIX/bin/calculadoira     $SOURCES ;;
+        (aarch64-macos-none) $REPOS/luax/.build/bin/luax -t aarch64-macos-none -o $PREFIX/bin/calculadoira     $SOURCES ;;
+    esac
     calculadoira_installed=true
 }
 
@@ -192,8 +244,8 @@ install-ditaa()
     $ditaa_installed && return
     figlet ditaa
     local DITAA_VERSION
-    DITAA_VERSION=$(curl -sSL https://api.github.com/repos/stathissideris/ditaa/releases/latest | jq -r .tag_name)
-    mkdir -p $REPOS/ditaa
+    DITAA_VERSION=$(tag_name stathissideris/ditaa)
+    mkdir -p $REPOS/ditaa $PREFIX/bin
     [ -f "$REPOS/ditaa/ditaa-${DITAA_VERSION#v}-standalone.jar" ] \
         || wget "https://github.com/stathissideris/ditaa/releases/download/${DITAA_VERSION}/ditaa-${DITAA_VERSION#v}-standalone.jar" \
             -O "$REPOS/ditaa/ditaa-${DITAA_VERSION#v}-standalone.jar"
@@ -209,8 +261,19 @@ install-lsvg()
     install-luax
     figlet lsvg
     gitclone https://github.com/CDSoft/lsvg
-    PREFIX=$PREFIX ninja clean -C $REPOS/lsvg
+    ninja clean -C $REPOS/lsvg
     PREFIX=$PREFIX ninja install -C $REPOS/lsvg
+    local SOURCES
+    SOURCES="$(ls $REPOS/lsvg/src/*.lua)"
+    case "$TARGET" in
+        (x86_64-linux-gnu)   $REPOS/luax/.build/bin/luax -t x86_64-linux-gnu   -o $PREFIX/bin/lsvg     $SOURCES ;;
+        (x86_64-linux-musl)  $REPOS/luax/.build/bin/luax -t x86_64-linux-musl  -o $PREFIX/bin/lsvg     $SOURCES ;;
+        (aarch64-linux-gnu)  $REPOS/luax/.build/bin/luax -t aarch64-linux-gnu  -o $PREFIX/bin/lsvg     $SOURCES ;;
+        (aarch64-linux-musl) $REPOS/luax/.build/bin/luax -t aarch64-linux-musl -o $PREFIX/bin/lsvg     $SOURCES ;;
+        (x86_64-windows-gnu) $REPOS/luax/.build/bin/luax -t x86_64-windows-gnu -o $PREFIX/bin/lsvg.exe $SOURCES && rm $PREFIX/bin/lsvg ;;
+        (x86_64-macos-none)  $REPOS/luax/.build/bin/luax -t x86_64-macos-none  -o $PREFIX/bin/lsvg     $SOURCES ;;
+        (aarch64-macos-none) $REPOS/luax/.build/bin/luax -t aarch64-macos-none -o $PREFIX/bin/lsvg     $SOURCES ;;
+    esac
     lsvg_installed=true
 }
 
@@ -222,6 +285,16 @@ install-luax()
     figlet LuaX
     gitclone https://github.com/CDSoft/luax
     PREFIX=$PREFIX ninja install -C $REPOS/luax
+    case "$TARGET" in
+        (x86_64-linux-gnu)   cp -av $REPOS/luax/.build/bin/luax-x86_64-linux-gnu       $PREFIX/bin/luax ;;
+        (x86_64-linux-musl)  cp -av $REPOS/luax/.build/bin/luax-x86_64-linux-musl      $PREFIX/bin/luax ;;
+        (aarch64-linux-gnu)  cp -av $REPOS/luax/.build/bin/luax-aarch64-linux-gnu      $PREFIX/bin/luax ;;
+        (aarch64-linux-musl) cp -av $REPOS/luax/.build/bin/luax-aarch64-linux-musl     $PREFIX/bin/luax ;;
+        (x86_64-windows-gnu) cp -av $REPOS/luax/.build/bin/luax-x86_64-windows-gnu.exe $PREFIX/bin/luax.exe && rm $PREFIX/bin/luax ;;
+        (x86_64-macos-none)  cp -av $REPOS/luax/.build/bin/luax-x86_64-macos-none      $PREFIX/bin/luax ;;
+        (aarch64-macos-none) cp -av $REPOS/luax/.build/bin/luax-aarch64-macos-none     $PREFIX/bin/luax ;;
+    esac
+    eval "$($REPOS/luax/.build/bin/luax env)"
     luax_installed=true
 }
 
@@ -233,7 +306,7 @@ install-panda()
     install-pandoc
     figlet Panda
     gitclone https://github.com/CDSoft/panda
-    PREFIX=$PREFIX ninja clean -C $REPOS/panda
+    ninja clean -C $REPOS/panda
     PREFIX=$PREFIX ninja install -C $REPOS/panda
     panda_installed=true
 }
@@ -244,39 +317,42 @@ install-pandoc()
 {
     $pandoc_installed && return
     figlet Pandoc
-    mkdir -p "$REPOS/pandoc"
-    mkdir -p "$PREFIX/bin"
+    mkdir -p "$REPOS/pandoc/$TARGET" "$PREFIX/bin"
     local PANDOC_VERSION
-    PANDOC_VERSION=$(curl -sSL https://api.github.com/repos/jgm/pandoc/releases/latest | jq -r .tag_name)
+    PANDOC_VERSION=$(tag_name jgm/pandoc)
     case "$(target)" in
         (linux-x86_64)
             local PANDOC_URL=https://github.com/jgm/pandoc/releases/download/${PANDOC_VERSION}/pandoc-${PANDOC_VERSION}-linux-amd64.tar.gz
-            [ -f "$REPOS/pandoc/$(basename "$PANDOC_URL")" ] || wget -c "$PANDOC_URL" -O "$REPOS/pandoc/$(basename "$PANDOC_URL")"
-            tar -C "$REPOS/pandoc/" -xzf "$REPOS/pandoc/$(basename "$PANDOC_URL")"
+            [ -f "$REPOS/pandoc/$TARGET/$(basename "$PANDOC_URL")" ] || wget -c "$PANDOC_URL" -O "$REPOS/pandoc/$TARGET/$(basename "$PANDOC_URL")"
+            tar -C "$REPOS/pandoc/$TARGET/" -xzf "$REPOS/pandoc/$TARGET/$(basename "$PANDOC_URL")"
+            cp -av "$REPOS/pandoc/$TARGET/pandoc-${PANDOC_VERSION}/bin"/* "$PREFIX/bin/"
             ;;
         (linux-aarch64)
             local PANDOC_URL=https://github.com/jgm/pandoc/releases/download/${PANDOC_VERSION}/pandoc-${PANDOC_VERSION}-linux-arm64.tar.gz
-            [ -f "$REPOS/pandoc/$(basename "$PANDOC_URL")" ] || wget -c "$PANDOC_URL" -O "$REPOS/pandoc/$(basename "$PANDOC_URL")"
-            tar -C "$REPOS/pandoc/" -xzf "$REPOS/pandoc/$(basename "$PANDOC_URL")"
+            [ -f "$REPOS/pandoc/$TARGET/$(basename "$PANDOC_URL")" ] || wget -c "$PANDOC_URL" -O "$REPOS/pandoc/$TARGET/$(basename "$PANDOC_URL")"
+            tar -C "$REPOS/pandoc/$TARGET/" -xzf "$REPOS/pandoc/$TARGET/$(basename "$PANDOC_URL")"
+            cp -av "$REPOS/pandoc/$TARGET/pandoc-${PANDOC_VERSION}/bin"/* "$PREFIX/bin/"
             ;;
         (windows-x86_64)
             local PANDOC_URL=https://github.com/jgm/pandoc/releases/download/${PANDOC_VERSION}/pandoc-${PANDOC_VERSION}-windows-x86_64.zip
-            [ -f "$REPOS/pandoc/$(basename "$PANDOC_URL")" ] || wget -c "$PANDOC_URL" -O "$REPOS/pandoc/$(basename "$PANDOC_URL")"
-            unzip -o -q "$REPOS/pandoc/$(basename "$PANDOC_URL")" -d "$REPOS/pandoc/"
+            [ -f "$REPOS/pandoc/$TARGET/$(basename "$PANDOC_URL")" ] || wget -c "$PANDOC_URL" -O "$REPOS/pandoc/$TARGET/$(basename "$PANDOC_URL")"
+            unzip -o -q "$REPOS/pandoc/$TARGET/$(basename "$PANDOC_URL")" -d "$REPOS/pandoc/$TARGET/"
+            cp -av "$REPOS/pandoc/$TARGET/pandoc-${PANDOC_VERSION}/"/*.exe "$PREFIX/bin/"
             ;;
         (macos-x86_64)
             local PANDOC_URL=https://github.com/jgm/pandoc/releases/download/${PANDOC_VERSION}/pandoc-${PANDOC_VERSION}-x86_64-macOS.zip
-            [ -f "$REPOS/pandoc/$(basename "$PANDOC_URL")" ] || wget -c "$PANDOC_URL" -O "$REPOS/pandoc/$(basename "$PANDOC_URL")"
-            unzip -o -q "$REPOS/pandoc/$(basename "$PANDOC_URL")" -d "$REPOS/pandoc/"
+            [ -f "$REPOS/pandoc/$TARGET/$(basename "$PANDOC_URL")" ] || wget -c "$PANDOC_URL" -O "$REPOS/pandoc/$TARGET/$(basename "$PANDOC_URL")"
+            unzip -o -q "$REPOS/pandoc/$TARGET/$(basename "$PANDOC_URL")" -d "$REPOS/pandoc/$TARGET/"
+            cp -av "$REPOS/pandoc/$TARGET/pandoc-${PANDOC_VERSION}-x86_64/bin"/* "$PREFIX/bin/"
             ;;
         (macos-aarch64)
             local PANDOC_URL=https://github.com/jgm/pandoc/releases/download/${PANDOC_VERSION}/pandoc-${PANDOC_VERSION}-arm64-macOS.zip
-            [ -f "$REPOS/pandoc/$(basename "$PANDOC_URL")" ] || wget -c "$PANDOC_URL" -O "$REPOS/pandoc/$(basename "$PANDOC_URL")"
-            unzip -o -q "$REPOS/pandoc/$(basename "$PANDOC_URL")" -d "$REPOS/pandoc/"
+            [ -f "$REPOS/pandoc/$TARGET/$(basename "$PANDOC_URL")" ] || wget -c "$PANDOC_URL" -O "$REPOS/pandoc/$TARGET/$(basename "$PANDOC_URL")"
+            unzip -o -q "$REPOS/pandoc/$TARGET/$(basename "$PANDOC_URL")" -d "$REPOS/pandoc/$TARGET/"
+            cp -av "$REPOS/pandoc/$TARGET/pandoc-${PANDOC_VERSION}-arm64/bin"/* "$PREFIX/bin/"
             ;;
         (*) echo "$(target): unsupported platform for Pandoc"; exit 1 ;;
     esac
-    cp -av "$REPOS/pandoc/pandoc-${PANDOC_VERSION}/bin"/* "$PREFIX/bin/"
     pandoc_installed=true
 }
 
@@ -313,8 +389,8 @@ install-plantuml()
     $plantuml_installed && return
     figlet PlantUML
     local PLANTUML_VERSION
-    PLANTUML_VERSION=$(curl -sSL https://api.github.com/repos/plantuml/plantuml/releases/latest | jq -r .tag_name)
-    mkdir -p $REPOS/plantuml
+    PLANTUML_VERSION=$(tag_name plantuml/plantuml)
+    mkdir -p $REPOS/plantuml $PREFIX/bin
     [ -f "$REPOS/plantuml/plantuml-pdf-${PLANTUML_VERSION#v}.jar" ] \
         || wget "https://github.com/plantuml/plantuml/releases/download/${PLANTUML_VERSION}/plantuml-pdf-${PLANTUML_VERSION#v}.jar" \
             -O "$REPOS/plantuml/plantuml-pdf-${PLANTUML_VERSION#v}.jar"
@@ -330,8 +406,19 @@ install-tagref()
     install-luax
     figlet tagref
     gitclone https://github.com/CDSoft/tagref
-    PREFIX=$PREFIX ninja clean -C $REPOS/tagref
+    ninja clean -C $REPOS/tagref
     PREFIX=$PREFIX ninja install -C $REPOS/tagref
+    local SOURCES
+    SOURCES="$(ls $REPOS/tagref/src/*.lua)"
+    case "$TARGET" in
+        (x86_64-linux-gnu)   $REPOS/luax/.build/bin/luax -t x86_64-linux-gnu   -o $PREFIX/bin/tagref     $SOURCES ;;
+        (x86_64-linux-musl)  $REPOS/luax/.build/bin/luax -t x86_64-linux-musl  -o $PREFIX/bin/tagref     $SOURCES ;;
+        (aarch64-linux-gnu)  $REPOS/luax/.build/bin/luax -t aarch64-linux-gnu  -o $PREFIX/bin/tagref     $SOURCES ;;
+        (aarch64-linux-musl) $REPOS/luax/.build/bin/luax -t aarch64-linux-musl -o $PREFIX/bin/tagref     $SOURCES ;;
+        (x86_64-windows-gnu) $REPOS/luax/.build/bin/luax -t x86_64-windows-gnu -o $PREFIX/bin/tagref.exe $SOURCES && rm $PREFIX/bin/tagref ;;
+        (x86_64-macos-none)  $REPOS/luax/.build/bin/luax -t x86_64-macos-none  -o $PREFIX/bin/tagref     $SOURCES ;;
+        (aarch64-macos-none) $REPOS/luax/.build/bin/luax -t aarch64-macos-none -o $PREFIX/bin/tagref     $SOURCES ;;
+    esac
     tagref_installed=true
 }
 
@@ -342,40 +429,38 @@ install-typst()
     $typst_installed && return
     figlet Typst
     local TYPST_VERSION
-    TYPST_VERSION=$(curl -sSL https://api.github.com/repos/typst/typst/releases/latest | jq -r .tag_name)
-    mkdir -p "$REPOS/typst/$TYPST_VERSION"
-    mkdir -p "$PREFIX/bin"
+    TYPST_VERSION=$(tag_name typst/typst)
+    mkdir -p "$REPOS/typst/$TARGET/$TYPST_VERSION" "$PREFIX/bin"
     case "$(target)" in
         (linux-x86_64)
             TYPST_URL=https://github.com/typst/typst/releases/download/${TYPST_VERSION}/typst-x86_64-unknown-linux-musl.tar.xz
-            [ -f "$REPOS/typst/$TYPST_VERSION/$(basename "$TYPST_URL")" ] || wget -c "$TYPST_URL" -O "$REPOS/typst/$TYPST_VERSION/$(basename "$TYPST_URL")"
-            tar -C "$REPOS/typst/$TYPST_VERSION" -xJf "$REPOS/typst/$TYPST_VERSION/$(basename "$TYPST_URL")"
-            cp -av "$REPOS/typst/$TYPST_VERSION/typst-x86_64-unknown-linux-musl/typst" "$PREFIX/bin/"
+            [ -f "$REPOS/typst/$TARGET/$TYPST_VERSION/$(basename "$TYPST_URL")" ] || wget -c "$TYPST_URL" -O "$REPOS/typst/$TARGET/$TYPST_VERSION/$(basename "$TYPST_URL")"
+            tar -C "$REPOS/typst/$TARGET/$TYPST_VERSION" -xJf "$REPOS/typst/$TARGET/$TYPST_VERSION/$(basename "$TYPST_URL")"
+            cp -av "$REPOS/typst/$TARGET/$TYPST_VERSION/typst-x86_64-unknown-linux-musl/typst" "$PREFIX/bin/"
             ;;
         (linux-aarch64)
             TYPST_URL=https://github.com/typst/typst/releases/download/${TYPST_VERSION}/typst-aarch64-unknown-linux-musl.tar.xz
-            [ -f "$REPOS/typst/$TYPST_VERSION/$(basename "$TYPST_URL")" ] || wget -c "$TYPST_URL" -O "$REPOS/typst/$TYPST_VERSION/$(basename "$TYPST_URL")"
-            tar -C "$REPOS/typst/$TYPST_VERSION" -xJf "$REPOS/typst/$TYPST_VERSION/$(basename "$TYPST_URL")"
-            cp -av "$REPOS/typst/$TYPST_VERSION/typst-aarch64-unknown-linux-musl/typst" "$PREFIX/bin/"
+            [ -f "$REPOS/typst/$TARGET/$TYPST_VERSION/$(basename "$TYPST_URL")" ] || wget -c "$TYPST_URL" -O "$REPOS/typst/$TARGET/$TYPST_VERSION/$(basename "$TYPST_URL")"
+            tar -C "$REPOS/typst/$TARGET/$TYPST_VERSION" -xJf "$REPOS/typst/$TARGET/$TYPST_VERSION/$(basename "$TYPST_URL")"
+            cp -av "$REPOS/typst/$TARGET/$TYPST_VERSION/typst-aarch64-unknown-linux-musl/typst" "$PREFIX/bin/"
             ;;
         (windows-x86_64)
-            TYPST_URL=https://github.com/typst/typst/releases/download/${TYPST_VERSION}/typst-x86_64-pc-windows-msvc.tar.xz
-            [ -f "$REPOS/typst/$TYPST_VERSION/$(basename "$TYPST_URL")" ] || wget -c "$TYPST_URL" -O "$REPOS/typst/$TYPST_VERSION/$(basename "$TYPST_URL")"
-            tar -C "$REPOS/typst/$TYPST_VERSION" -xJf "$REPOS/typst/$TYPST_VERSION/$(basename "$TYPST_URL")"
-            unzip -o -q "$REPOS/typst/$TYPST_VERSION/$(basename "$TYPST_URL")" -d "$REPOS/typst/$TYPST_VERSION/"
-            cp -av "$REPOS/typst/$TYPST_VERSION/typst-x86_64-pc-windows-msvc/typst.exe" "$PREFIX/bin/"
+            TYPST_URL=https://github.com/typst/typst/releases/download/${TYPST_VERSION}/typst-x86_64-pc-windows-msvc.zip
+            [ -f "$REPOS/typst/$TARGET/$TYPST_VERSION/$(basename "$TYPST_URL")" ] || wget -c "$TYPST_URL" -O "$REPOS/typst/$TARGET/$TYPST_VERSION/$(basename "$TYPST_URL")"
+            unzip -o -q "$REPOS/typst/$TARGET/$TYPST_VERSION/$(basename "$TYPST_URL")" -d "$REPOS/typst/$TARGET/$TYPST_VERSION/"
+            cp -av "$REPOS/typst/$TARGET/$TYPST_VERSION/typst-x86_64-pc-windows-msvc/typst.exe" "$PREFIX/bin/"
             ;;
         (macos-x86_64)
-            TYPST_URL=https://github.com/typst/typst/releases/download/${TYPST_VERSION}/typst-aarch64-x86_64-darwin.tar.xz
-            [ -f "$REPOS/typst/$TYPST_VERSION/$(basename "$TYPST_URL")" ] || wget -c "$TYPST_URL" -O "$REPOS/typst/$TYPST_VERSION/$(basename "$TYPST_URL")"
-            tar -C "$REPOS/typst/$TYPST_VERSION" -xJf "$REPOS/typst/$TYPST_VERSION/$(basename "$TYPST_URL")"
-            cp -av "$REPOS/typst/$TYPST_VERSION/typst-x86_64-apple-darwin/typst" "$PREFIX/bin/"
+            TYPST_URL=https://github.com/typst/typst/releases/download/${TYPST_VERSION}/typst-x86_64-apple-darwin.tar.xz
+            [ -f "$REPOS/typst/$TARGET/$TYPST_VERSION/$(basename "$TYPST_URL")" ] || wget -c "$TYPST_URL" -O "$REPOS/typst/$TARGET/$TYPST_VERSION/$(basename "$TYPST_URL")"
+            tar -C "$REPOS/typst/$TARGET/$TYPST_VERSION" -xJf "$REPOS/typst/$TARGET/$TYPST_VERSION/$(basename "$TYPST_URL")"
+            cp -av "$REPOS/typst/$TARGET/$TYPST_VERSION/typst-x86_64-apple-darwin/typst" "$PREFIX/bin/"
             ;;
         (macos-aarch64)
             TYPST_URL=https://github.com/typst/typst/releases/download/${TYPST_VERSION}/typst-aarch64-apple-darwin.tar.xz
-            [ -f "$REPOS/typst/$TYPST_VERSION/$(basename "$TYPST_URL")" ] || wget -c "$TYPST_URL" -O "$REPOS/typst/$TYPST_VERSION/$(basename "$TYPST_URL")"
-            tar -C "$REPOS/typst/$TYPST_VERSION" -xJf "$REPOS/typst/$TYPST_VERSION/$(basename "$TYPST_URL")"
-            cp -av "$REPOS/typst/$TYPST_VERSION/typst-aarch64-apple-darwin/typst" "$PREFIX/bin/"
+            [ -f "$REPOS/typst/$TARGET/$TYPST_VERSION/$(basename "$TYPST_URL")" ] || wget -c "$TYPST_URL" -O "$REPOS/typst/$TARGET/$TYPST_VERSION/$(basename "$TYPST_URL")"
+            tar -C "$REPOS/typst/$TARGET/$TYPST_VERSION" -xJf "$REPOS/typst/$TARGET/$TYPST_VERSION/$(basename "$TYPST_URL")"
+            cp -av "$REPOS/typst/$TARGET/$TYPST_VERSION/typst-aarch64-apple-darwin/typst" "$PREFIX/bin/"
             ;;
         (*) echo "$(target): unsupported platform for Typst"; exit 1 ;;
     esac
@@ -389,8 +474,19 @@ install-ypp()
     $ypp_installed && return
     figlet ypp
     gitclone https://github.com/CDSoft/ypp
-    PREFIX=$PREFIX ninja clean -C $REPOS/ypp
+    ninja clean -C $REPOS/ypp
     PREFIX=$PREFIX ninja install -C $REPOS/ypp
+    local SOURCES
+    SOURCES="$(ls $REPOS/ypp/src/*.lua) $(ls $REPOS/ypp/.build/src/*.lua)"
+    case "$TARGET" in
+        (x86_64-linux-gnu)    $REPOS/luax/.build/bin/luax -t x86_64-linux-gnu   -o $PREFIX/bin/ypp     $SOURCES ;;
+        (x86_64-linux-musl)   $REPOS/luax/.build/bin/luax -t x86_64-linux-musl  -o $PREFIX/bin/ypp     $SOURCES ;;
+        (aarch64-linux-gnu)   $REPOS/luax/.build/bin/luax -t aarch64-linux-gnu  -o $PREFIX/bin/ypp     $SOURCES ;;
+        (aarch64-linux-musl)  $REPOS/luax/.build/bin/luax -t aarch64-linux-musl -o $PREFIX/bin/ypp     $SOURCES ;;
+        (x86_64-windows-gnu)  $REPOS/luax/.build/bin/luax -t x86_64-windows-gnu -o $PREFIX/bin/ypp.exe $SOURCES && rm $PREFIX/bin/ypp ;;
+        (x86_64-macos-none)   $REPOS/luax/.build/bin/luax -t x86_64-macos-none  -o $PREFIX/bin/ypp     $SOURCES ;;
+        (aarch64-macos-none)  $REPOS/luax/.build/bin/luax -t aarch64-macos-none -o $PREFIX/bin/ypp     $SOURCES ;;
+    esac
     ypp_installed=true
 }
 
@@ -402,10 +498,13 @@ main()
     do
         case "$1" in
             (-p)    PREFIX="$2"; shift 2;;
+            (-t)    TARGET="$2"; shift 2;;
             (-*)    echo "$1: unknown option"; exit 1 ;;
             (*)     args+=("$1"); shift 1 ;;
         esac
     done
+
+    PREFIX=$(realpath "$PREFIX")
 
     local cmd="${args[0]}"
     unset "args[0]"
