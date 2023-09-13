@@ -130,6 +130,7 @@ install-bang()
 {
     $bang_installed && return
     install-luax
+    figlet Bang
     gitclone https://github.com/CDSoft/bang
     PREFIX=$PREFIX ninja clean -C $REPOS/bang
     PREFIX=$PREFIX ninja install -C $REPOS/bang
@@ -142,6 +143,7 @@ install-calculadoira()
 {
     $calculadoira_installed && return
     install-luax
+    figlet Calculadoira
     gitclone https://github.com/CDSoft/calculadoira
     PREFIX=$PREFIX ninja clean -C $REPOS/calculadoira
     PREFIX=$PREFIX ninja install -C $REPOS/calculadoira
@@ -153,6 +155,7 @@ ditaa_installed=false
 install-ditaa()
 {
     $ditaa_installed && return
+    figlet ditaa
     local DITAA_VERSION
     DITAA_VERSION=$(curl -sSL https://api.github.com/repos/stathissideris/ditaa/releases/latest | jq -r .tag_name)
     mkdir -p $REPOS/ditaa
@@ -169,6 +172,7 @@ install-lsvg()
 {
     $lsvg_installed && return
     install-luax
+    figlet lsvg
     gitclone https://github.com/CDSoft/lsvg
     PREFIX=$PREFIX ninja clean -C $REPOS/lsvg
     PREFIX=$PREFIX ninja install -C $REPOS/lsvg
@@ -180,6 +184,7 @@ luax_installed=false
 install-luax()
 {
     $luax_installed && return
+    figlet LuaX
     gitclone https://github.com/CDSoft/luax
     PREFIX=$PREFIX ninja install -C $REPOS/luax
     luax_installed=true
@@ -191,6 +196,7 @@ install-panda()
 {
     $panda_installed && return
     install-pandoc
+    figlet Panda
     gitclone https://github.com/CDSoft/panda
     PREFIX=$PREFIX ninja clean -C $REPOS/panda
     PREFIX=$PREFIX ninja install -C $REPOS/panda
@@ -202,6 +208,7 @@ pandoc_installed=false
 install-pandoc()
 {
     $pandoc_installed && return
+    figlet Pandoc
     mkdir -p "$REPOS/pandoc"
     mkdir -p "$PREFIX/bin"
     local PANDOC_VERSION
@@ -244,6 +251,7 @@ install-pandoc-latex-template()
 {
     $pandoc_latex_template_installed && return
     install-pandoc
+    figlet Pandoc LaTeX template
     gitclone https://github.com/Wandmalfarbe/pandoc-latex-template.git
     mkdir -p $PREFIX/share/pandoc
     cp -v $REPOS/pandoc-latex-template.git/eisvogel.tex $PREFIX/share/pandoc
@@ -256,6 +264,7 @@ install-pandoc-panam-css()
 {
     $pandoc_panam_css && return
     install-pandoc
+    figlet Pandoc Pan-Am CSS
     gitclone https://github.com/CDSoft/pan-am
     mkdir -p $PREFIX/share/pandoc
     cp -v $REPOS/pan-am/styling.css $PREFIX/share/pandoc/panam.css
@@ -267,6 +276,7 @@ plantuml_installed=false
 install-plantuml()
 {
     $plantuml_installed && return
+    figlet PlantUML
     local PLANTUML_VERSION
     PLANTUML_VERSION=$(curl -sSL https://api.github.com/repos/plantuml/plantuml/releases/latest | jq -r .tag_name)
     mkdir -p $REPOS/plantuml
@@ -283,6 +293,7 @@ install-tagref()
 {
     $tagref_installed && return
     install-luax
+    figlet tagref
     gitclone https://github.com/CDSoft/tagref
     PREFIX=$PREFIX ninja clean -C $REPOS/tagref
     PREFIX=$PREFIX ninja install -C $REPOS/tagref
@@ -294,6 +305,7 @@ typst_installed=false
 install-typst()
 {
     $typst_installed && return
+    figlet Typst
     local TYPST_VERSION
     TYPST_VERSION=$(curl -sSL https://api.github.com/repos/typst/typst/releases/latest | jq -r .tag_name)
     mkdir -p "$REPOS/typst/$TYPST_VERSION"
@@ -340,6 +352,7 @@ ypp_installed=false
 install-ypp()
 {
     $ypp_installed && return
+    figlet ypp
     gitclone https://github.com/CDSoft/ypp
     PREFIX=$PREFIX ninja clean -C $REPOS/ypp
     PREFIX=$PREFIX ninja install -C $REPOS/ypp
@@ -359,12 +372,11 @@ main()
         esac
     done
 
-
     local cmd="${args[0]}"
     unset "args[0]"
     #set -x
     case "$cmd" in
-        (""|help)    cmd-help ;;
+        (""|help) cmd-help ;;
         (list)    cmd-list ;;
         (install) echo "Installation prefix: $PREFIX"
                   cmd-install "${args[@]}"
