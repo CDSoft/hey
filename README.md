@@ -3,6 +3,19 @@ hey
 
 `hey` is an helper script to install some [CDSoft](https://github.com/CDSoft) programs and related softwares.
 
+Download
+========
+
+[`hey`](https://raw.githubusercontent.com/CDSoft/hey/master/hey) is a single bash script
+available at <https://github.com/CDSoft/hey>.
+
+Just download it and run.
+
+```
+$ wget https://raw.githubusercontent.com/CDSoft/hey/master/hey
+$ chmod +x hey
+```
+
 Usage
 =====
 
@@ -80,3 +93,24 @@ $ hey -p path/to/my/softs install luax bang
 ```
 
 Note that the installation of LuaX can be long, especially on older computers.
+
+License
+=======
+
+    This file is part of hey.
+
+    hey is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    hey is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with hey.  If not, see <https://www.gnu.org/licenses/>.
+
+    For further information about hey you can visit
+    https://cdelord.fr/hey
