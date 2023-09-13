@@ -69,6 +69,41 @@ typst   Focus on your text and let Typst take care of layout and formatting
 EOF
 }
 
+check-prerequisites()
+{
+    check   figlet  figlet  figlet  false
+    check   git     git     git     true
+    check   curl    curl    curl    true
+    check   jq      jq      jq      true
+    check   wget    wget    wget    true
+    check   tar     tar     tar     true
+    check   unzip   zip     zip     true
+}
+
+check()
+{
+    local name="$1"
+    local rpm_packet="$2"
+    local apt_packet="$3"
+    local required="$4"
+    hash "$name" && return
+    if hash dnf 2>/dev/null
+    then
+        sudo dnf install "$rpm_packet"
+    else
+        if hash apt 2>/dev/null
+        then
+            sudo apt install "$apt_packet"
+        else
+            if $required
+            then
+                echo "hey requires $name"
+                exit 1
+            fi
+        fi
+    fi
+}
+
 cmd-install()
 {
     for package in "$@"
@@ -315,32 +350,32 @@ install-typst()
             TYPST_URL=https://github.com/typst/typst/releases/download/${TYPST_VERSION}/typst-x86_64-unknown-linux-musl.tar.xz
             [ -f "$REPOS/typst/$TYPST_VERSION/$(basename "$TYPST_URL")" ] || wget -c "$TYPST_URL" -O "$REPOS/typst/$TYPST_VERSION/$(basename "$TYPST_URL")"
             tar -C "$REPOS/typst/$TYPST_VERSION" -xJf "$REPOS/typst/$TYPST_VERSION/$(basename "$TYPST_URL")"
-            cp -a "$REPOS/typst/$TYPST_VERSION/typst-x86_64-unknown-linux-musl/typst" "$PREFIX/bin/"
+            cp -av "$REPOS/typst/$TYPST_VERSION/typst-x86_64-unknown-linux-musl/typst" "$PREFIX/bin/"
             ;;
         (linux-aarch64)
             TYPST_URL=https://github.com/typst/typst/releases/download/${TYPST_VERSION}/typst-aarch64-unknown-linux-musl.tar.xz
             [ -f "$REPOS/typst/$TYPST_VERSION/$(basename "$TYPST_URL")" ] || wget -c "$TYPST_URL" -O "$REPOS/typst/$TYPST_VERSION/$(basename "$TYPST_URL")"
             tar -C "$REPOS/typst/$TYPST_VERSION" -xJf "$REPOS/typst/$TYPST_VERSION/$(basename "$TYPST_URL")"
-            cp -a "$REPOS/typst/$TYPST_VERSION/typst-aarch64-unknown-linux-musl/typst" "$PREFIX/bin/"
+            cp -av "$REPOS/typst/$TYPST_VERSION/typst-aarch64-unknown-linux-musl/typst" "$PREFIX/bin/"
             ;;
         (windows-x86_64)
             TYPST_URL=https://github.com/typst/typst/releases/download/${TYPST_VERSION}/typst-x86_64-pc-windows-msvc.tar.xz
             [ -f "$REPOS/typst/$TYPST_VERSION/$(basename "$TYPST_URL")" ] || wget -c "$TYPST_URL" -O "$REPOS/typst/$TYPST_VERSION/$(basename "$TYPST_URL")"
             tar -C "$REPOS/typst/$TYPST_VERSION" -xJf "$REPOS/typst/$TYPST_VERSION/$(basename "$TYPST_URL")"
             unzip -o -q "$REPOS/typst/$TYPST_VERSION/$(basename "$TYPST_URL")" -d "$REPOS/typst/$TYPST_VERSION/"
-            cp -a "$REPOS/typst/$TYPST_VERSION/typst-x86_64-pc-windows-msvc/typst" "$PREFIX/bin/"
+            cp -av "$REPOS/typst/$TYPST_VERSION/typst-x86_64-pc-windows-msvc/typst.exe" "$PREFIX/bin/"
             ;;
         (macos-x86_64)
             TYPST_URL=https://github.com/typst/typst/releases/download/${TYPST_VERSION}/typst-aarch64-x86_64-darwin.tar.xz
             [ -f "$REPOS/typst/$TYPST_VERSION/$(basename "$TYPST_URL")" ] || wget -c "$TYPST_URL" -O "$REPOS/typst/$TYPST_VERSION/$(basename "$TYPST_URL")"
             tar -C "$REPOS/typst/$TYPST_VERSION" -xJf "$REPOS/typst/$TYPST_VERSION/$(basename "$TYPST_URL")"
-            cp -a "$REPOS/typst/$TYPST_VERSION/typst-x86_64-apple-darwin/typst" "$PREFIX/bin/"
+            cp -av "$REPOS/typst/$TYPST_VERSION/typst-x86_64-apple-darwin/typst" "$PREFIX/bin/"
             ;;
         (macos-aarch64)
             TYPST_URL=https://github.com/typst/typst/releases/download/${TYPST_VERSION}/typst-aarch64-apple-darwin.tar.xz
             [ -f "$REPOS/typst/$TYPST_VERSION/$(basename "$TYPST_URL")" ] || wget -c "$TYPST_URL" -O "$REPOS/typst/$TYPST_VERSION/$(basename "$TYPST_URL")"
             tar -C "$REPOS/typst/$TYPST_VERSION" -xJf "$REPOS/typst/$TYPST_VERSION/$(basename "$TYPST_URL")"
-            cp -a "$REPOS/typst/$TYPST_VERSION/typst-aarch64-apple-darwin/typst" "$PREFIX/bin/"
+            cp -av "$REPOS/typst/$TYPST_VERSION/typst-aarch64-apple-darwin/typst" "$PREFIX/bin/"
             ;;
         (*) echo "$(target): unsupported platform for Typst"; exit 1 ;;
     esac
@@ -379,6 +414,7 @@ main()
         (""|help) cmd-help ;;
         (list)    cmd-list ;;
         (install) echo "Installation prefix: $PREFIX"
+                  check-prerequisites
                   cmd-install "${args[@]}"
                   ;;
         (*)       echo "$cmd: unknown command"; exit 1 ;;
