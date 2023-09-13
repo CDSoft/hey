@@ -131,6 +131,7 @@ install-bang()
     $bang_installed && return
     install-luax
     gitclone https://github.com/CDSoft/bang
+    PREFIX=$PREFIX ninja clean -C $REPOS/bang
     PREFIX=$PREFIX ninja install -C $REPOS/bang
     bang_installed=true
 }
@@ -142,6 +143,7 @@ install-calculadoira()
     $calculadoira_installed && return
     install-luax
     gitclone https://github.com/CDSoft/calculadoira
+    PREFIX=$PREFIX ninja clean -C $REPOS/calculadoira
     PREFIX=$PREFIX ninja install -C $REPOS/calculadoira
     calculadoira_installed=true
 }
@@ -168,6 +170,7 @@ install-lsvg()
     $lsvg_installed && return
     install-luax
     gitclone https://github.com/CDSoft/lsvg
+    PREFIX=$PREFIX ninja clean -C $REPOS/lsvg
     PREFIX=$PREFIX ninja install -C $REPOS/lsvg
     lsvg_installed=true
 }
@@ -189,6 +192,7 @@ install-panda()
     $panda_installed && return
     install-pandoc
     gitclone https://github.com/CDSoft/panda
+    PREFIX=$PREFIX ninja clean -C $REPOS/panda
     PREFIX=$PREFIX ninja install -C $REPOS/panda
     panda_installed=true
 }
@@ -280,6 +284,7 @@ install-tagref()
     $tagref_installed && return
     install-luax
     gitclone https://github.com/CDSoft/tagref
+    PREFIX=$PREFIX ninja clean -C $REPOS/tagref
     PREFIX=$PREFIX ninja install -C $REPOS/tagref
     tagref_installed=true
 }
@@ -336,6 +341,7 @@ install-ypp()
 {
     $ypp_installed && return
     gitclone https://github.com/CDSoft/ypp
+    PREFIX=$PREFIX ninja clean -C $REPOS/ypp
     PREFIX=$PREFIX ninja install -C $REPOS/ypp
     ypp_installed=true
 }
