@@ -82,14 +82,15 @@ cmd-clean()
 
 check-prerequisites()
 {
-    check   figlet  figlet          figlet          false
-    check   git     git             git             true
-    check   curl    curl            curl            true
-    check   jq      jq              jq              true
-    check   wget    wget            wget            true
-    check   tar     tar             tar             true
-    check   unzip   zip             zip             true
-    check   ninja   ninja-build     ninja-build     true
+    check   figlet      figlet          figlet          false
+    check   git         git             git             true
+    check   curl        curl            curl            true
+    check   jq          jq              jq              true
+    check   wget        wget            wget            true
+    check   tar         tar             tar             true
+    check   unzip       zip             zip             true
+    check   ninja       ninja-build     ninja-build     true
+    check   lz4         lz4             lz4             true
 }
 
 check()
@@ -197,6 +198,19 @@ install-all()
     )
 }
 
+luax-target()
+{
+    local EXE="$1"
+    shift
+    local SOURCES="$*"
+    if [ -n "$TARGET" ]
+    then
+        rm -v "$PREFIX/bin/$EXE"
+        # shellcheck disable=SC2068
+        $REPOS/luax/.build/bin/luax -t "$TARGET" -o "$PREFIX/bin/$EXE" ${SOURCES[@]}
+    fi
+}
+
 bang_installed=false
 
 install-bang()
@@ -207,17 +221,7 @@ install-bang()
     gitclone https://github.com/CDSoft/bang
     ninja clean -C $REPOS/bang
     PREFIX=$PREFIX ninja install -C $REPOS/bang
-    local SOURCES
-    SOURCES="$(ls $REPOS/bang/{src,lib}/*.lua) $REPOS/bang/.build/version"
-    case "$TARGET" in
-        (x86_64-linux-gnu)   $REPOS/luax/.build/bin/luax -t x86_64-linux-gnu   -o $PREFIX/bin/bang     $SOURCES ;;
-        (x86_64-linux-musl)  $REPOS/luax/.build/bin/luax -t x86_64-linux-musl  -o $PREFIX/bin/bang     $SOURCES ;;
-        (aarch64-linux-gnu)  $REPOS/luax/.build/bin/luax -t aarch64-linux-gnu  -o $PREFIX/bin/bang     $SOURCES ;;
-        (aarch64-linux-musl) $REPOS/luax/.build/bin/luax -t aarch64-linux-musl -o $PREFIX/bin/bang     $SOURCES ;;
-        (x86_64-windows-gnu) $REPOS/luax/.build/bin/luax -t x86_64-windows-gnu -o $PREFIX/bin/bang.exe $SOURCES && rm $PREFIX/bin/bang ;;
-        (x86_64-macos-none)  $REPOS/luax/.build/bin/luax -t x86_64-macos-none   -o $PREFIX/bin/bang     $SOURCES ;;
-        (aarch64-macos-none) $REPOS/luax/.build/bin/luax -t aarch64-macos-none  -o $PREFIX/bin/bang     $SOURCES ;;
-    esac
+    luax-target bang "$(ls $REPOS/bang/{src,lib}/*.lua)" "$REPOS/bang/.build/version"
     bang_installed=true
 }
 
@@ -231,17 +235,7 @@ install-calculadoira()
     gitclone https://github.com/CDSoft/calculadoira
     ninja clean -C $REPOS/calculadoira
     PREFIX=$PREFIX ninja install -C $REPOS/calculadoira
-    local SOURCES
-    SOURCES="$(ls $REPOS/calculadoira/src/*.lua)"
-    case "$TARGET" in
-        (x86_64-linux-gnu)   $REPOS/luax/.build/bin/luax -t x86_64-linux-gnu   -o $PREFIX/bin/calculadoira     $SOURCES ;;
-        (x86_64-linux-musl)  $REPOS/luax/.build/bin/luax -t x86_64-linux-musl  -o $PREFIX/bin/calculadoira     $SOURCES ;;
-        (aarch64-linux-gnu)  $REPOS/luax/.build/bin/luax -t aarch64-linux-gnu  -o $PREFIX/bin/calculadoira     $SOURCES ;;
-        (aarch64-linux-musl) $REPOS/luax/.build/bin/luax -t aarch64-linux-musl -o $PREFIX/bin/calculadoira     $SOURCES ;;
-        (x86_64-windows-gnu) $REPOS/luax/.build/bin/luax -t x86_64-windows-gnu -o $PREFIX/bin/calculadoira.exe $SOURCES && rm $PREFIX/bin/calculadoira ;;
-        (x86_64-macos-none)  $REPOS/luax/.build/bin/luax -t x86_64-macos-none  -o $PREFIX/bin/calculadoira     $SOURCES ;;
-        (aarch64-macos-none) $REPOS/luax/.build/bin/luax -t aarch64-macos-none -o $PREFIX/bin/calculadoira     $SOURCES ;;
-    esac
+    luax-target calculadoira "$(ls $REPOS/calculadoira/src/*.lua)"
     calculadoira_installed=true
 }
 
@@ -271,17 +265,7 @@ install-lsvg()
     gitclone https://github.com/CDSoft/lsvg
     ninja clean -C $REPOS/lsvg
     PREFIX=$PREFIX ninja install -C $REPOS/lsvg
-    local SOURCES
-    SOURCES="$(ls $REPOS/lsvg/src/*.lua)"
-    case "$TARGET" in
-        (x86_64-linux-gnu)   $REPOS/luax/.build/bin/luax -t x86_64-linux-gnu   -o $PREFIX/bin/lsvg     $SOURCES ;;
-        (x86_64-linux-musl)  $REPOS/luax/.build/bin/luax -t x86_64-linux-musl  -o $PREFIX/bin/lsvg     $SOURCES ;;
-        (aarch64-linux-gnu)  $REPOS/luax/.build/bin/luax -t aarch64-linux-gnu  -o $PREFIX/bin/lsvg     $SOURCES ;;
-        (aarch64-linux-musl) $REPOS/luax/.build/bin/luax -t aarch64-linux-musl -o $PREFIX/bin/lsvg     $SOURCES ;;
-        (x86_64-windows-gnu) $REPOS/luax/.build/bin/luax -t x86_64-windows-gnu -o $PREFIX/bin/lsvg.exe $SOURCES && rm $PREFIX/bin/lsvg ;;
-        (x86_64-macos-none)  $REPOS/luax/.build/bin/luax -t x86_64-macos-none  -o $PREFIX/bin/lsvg     $SOURCES ;;
-        (aarch64-macos-none) $REPOS/luax/.build/bin/luax -t aarch64-macos-none -o $PREFIX/bin/lsvg     $SOURCES ;;
-    esac
+    luax-target lsvg "$(ls $REPOS/lsvg/src/*.lua)"
     lsvg_installed=true
 }
 
@@ -293,15 +277,14 @@ install-luax()
     figlet LuaX
     gitclone https://github.com/CDSoft/luax
     PREFIX=$PREFIX ninja install -C $REPOS/luax
-    case "$TARGET" in
-        (x86_64-linux-gnu)   cp -av $REPOS/luax/.build/bin/luax-x86_64-linux-gnu       $PREFIX/bin/luax ;;
-        (x86_64-linux-musl)  cp -av $REPOS/luax/.build/bin/luax-x86_64-linux-musl      $PREFIX/bin/luax ;;
-        (aarch64-linux-gnu)  cp -av $REPOS/luax/.build/bin/luax-aarch64-linux-gnu      $PREFIX/bin/luax ;;
-        (aarch64-linux-musl) cp -av $REPOS/luax/.build/bin/luax-aarch64-linux-musl     $PREFIX/bin/luax ;;
-        (x86_64-windows-gnu) cp -av $REPOS/luax/.build/bin/luax-x86_64-windows-gnu.exe $PREFIX/bin/luax.exe && rm $PREFIX/bin/luax ;;
-        (x86_64-macos-none)  cp -av $REPOS/luax/.build/bin/luax-x86_64-macos-none      $PREFIX/bin/luax ;;
-        (aarch64-macos-none) cp -av $REPOS/luax/.build/bin/luax-aarch64-macos-none     $PREFIX/bin/luax ;;
-    esac
+    if [ -n "$TARGET" ]
+    then
+        rm -v $PREFIX/bin/luax
+        case "$TARGET" in
+            (*-windows-*) cp -av "$REPOS/luax/.build/bin/luax-$TARGET.exe" $PREFIX/bin/luax.exe ;;
+            (*)           cp -av "$REPOS/luax/.build/bin/luax-$TARGET"     $PREFIX/bin/luax     ;;
+        esac
+    fi
     eval "$($REPOS/luax/.build/bin/luax env)"
     luax_installed=true
 }
@@ -345,7 +328,7 @@ install-pandoc()
             local PANDOC_URL=https://github.com/jgm/pandoc/releases/download/${PANDOC_VERSION}/pandoc-${PANDOC_VERSION}-windows-x86_64.zip
             [ -f "$REPOS/pandoc/$TARGET/$(basename "$PANDOC_URL")" ] || wget -c "$PANDOC_URL" -O "$REPOS/pandoc/$TARGET/$(basename "$PANDOC_URL")"
             unzip -o -q "$REPOS/pandoc/$TARGET/$(basename "$PANDOC_URL")" -d "$REPOS/pandoc/$TARGET/"
-            cp -av "$REPOS/pandoc/$TARGET/pandoc-${PANDOC_VERSION}/"/*.exe "$PREFIX/bin/"
+            cp -av "$REPOS/pandoc/$TARGET/pandoc-${PANDOC_VERSION}"/*.exe "$PREFIX/bin/"
             ;;
         (macos-x86_64)
             local PANDOC_URL=https://github.com/jgm/pandoc/releases/download/${PANDOC_VERSION}/pandoc-${PANDOC_VERSION}-x86_64-macOS.zip
@@ -416,17 +399,7 @@ install-tagref()
     gitclone https://github.com/CDSoft/tagref
     ninja clean -C $REPOS/tagref
     PREFIX=$PREFIX ninja install -C $REPOS/tagref
-    local SOURCES
-    SOURCES="$(ls $REPOS/tagref/src/*.lua)"
-    case "$TARGET" in
-        (x86_64-linux-gnu)   $REPOS/luax/.build/bin/luax -t x86_64-linux-gnu   -o $PREFIX/bin/tagref     $SOURCES ;;
-        (x86_64-linux-musl)  $REPOS/luax/.build/bin/luax -t x86_64-linux-musl  -o $PREFIX/bin/tagref     $SOURCES ;;
-        (aarch64-linux-gnu)  $REPOS/luax/.build/bin/luax -t aarch64-linux-gnu  -o $PREFIX/bin/tagref     $SOURCES ;;
-        (aarch64-linux-musl) $REPOS/luax/.build/bin/luax -t aarch64-linux-musl -o $PREFIX/bin/tagref     $SOURCES ;;
-        (x86_64-windows-gnu) $REPOS/luax/.build/bin/luax -t x86_64-windows-gnu -o $PREFIX/bin/tagref.exe $SOURCES && rm $PREFIX/bin/tagref ;;
-        (x86_64-macos-none)  $REPOS/luax/.build/bin/luax -t x86_64-macos-none  -o $PREFIX/bin/tagref     $SOURCES ;;
-        (aarch64-macos-none) $REPOS/luax/.build/bin/luax -t aarch64-macos-none -o $PREFIX/bin/tagref     $SOURCES ;;
-    esac
+    luax-target tagref "$(ls $REPOS/tagref/src/*.lua)"
     tagref_installed=true
 }
 
@@ -484,17 +457,7 @@ install-ypp()
     gitclone https://github.com/CDSoft/ypp
     ninja clean -C $REPOS/ypp
     PREFIX=$PREFIX ninja install -C $REPOS/ypp
-    local SOURCES
-    SOURCES="$(ls $REPOS/ypp/src/*.lua) $(ls $REPOS/ypp/.build/src/*.lua)"
-    case "$TARGET" in
-        (x86_64-linux-gnu)    $REPOS/luax/.build/bin/luax -t x86_64-linux-gnu   -o $PREFIX/bin/ypp     $SOURCES ;;
-        (x86_64-linux-musl)   $REPOS/luax/.build/bin/luax -t x86_64-linux-musl  -o $PREFIX/bin/ypp     $SOURCES ;;
-        (aarch64-linux-gnu)   $REPOS/luax/.build/bin/luax -t aarch64-linux-gnu  -o $PREFIX/bin/ypp     $SOURCES ;;
-        (aarch64-linux-musl)  $REPOS/luax/.build/bin/luax -t aarch64-linux-musl -o $PREFIX/bin/ypp     $SOURCES ;;
-        (x86_64-windows-gnu)  $REPOS/luax/.build/bin/luax -t x86_64-windows-gnu -o $PREFIX/bin/ypp.exe $SOURCES && rm $PREFIX/bin/ypp ;;
-        (x86_64-macos-none)   $REPOS/luax/.build/bin/luax -t x86_64-macos-none  -o $PREFIX/bin/ypp     $SOURCES ;;
-        (aarch64-macos-none)  $REPOS/luax/.build/bin/luax -t aarch64-macos-none -o $PREFIX/bin/ypp     $SOURCES ;;
-    esac
+    luax-target ypp "$(ls $REPOS/ypp/src/*.lua)" "$(ls $REPOS/ypp/.build/src/*.lua)"
     ypp_installed=true
 }
 
