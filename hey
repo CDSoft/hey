@@ -19,9 +19,11 @@
 # https://cdelord.fr/hey
 
 PREFIX=~/.local
-REPOS=~/.config/hey/repos
-TAGS=~/.config/hey/tags
 TARGET=
+
+CACHE=~/.local/var/cache/hey
+REPOS=$CACHE/repos
+TAGS=$CACHE/tags
 
 cmd-help()
 {
@@ -36,6 +38,7 @@ Commands:
     help        prints this help message
     list        list available packets
     install     install a packet
+    clean       clean cache
 
 install arguments
     packages    package names to install
@@ -70,6 +73,11 @@ plantuml
         PlantUML
 typst   Focus on your text and let Typst take care of layout and formatting
 EOF
+}
+
+cmd-clean()
+{
+    rm -rf "$CACHE"
 }
 
 check-prerequisites()
@@ -512,6 +520,7 @@ main()
     case "$cmd" in
         (""|help) cmd-help ;;
         (list)    cmd-list ;;
+        (clean)   cmd-clean ;;
         (install) echo "Installation prefix: $PREFIX"
                   check-prerequisites
                   cmd-install "${args[@]}"
