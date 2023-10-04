@@ -207,7 +207,7 @@ luax-target()
     then
         rm -v "$PREFIX/bin/$EXE"
         # shellcheck disable=SC2068
-        $REPOS/luax/.build/bin/luax -t "$TARGET" -o "$PREFIX/bin/$EXE" ${SOURCES[@]}
+        $REPOS/luax/.build/bin/luax -q -t "$TARGET" -o "$PREFIX/bin/$EXE" ${SOURCES[@]}
     fi
 }
 
