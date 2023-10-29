@@ -100,20 +100,12 @@ check()
     local apt_packet="$3"
     local required="$4"
     hash "$name" && return
-    if hash dnf 2>/dev/null
+    hash dnf 2>/dev/null && sudo dnf install "$rpm_packet" && return
+    hash apt 2>/dev/null && sudo apt install "$apt_packet" && return
+    if $required
     then
-        sudo dnf install "$rpm_packet"
-    else
-        if hash apt 2>/dev/null
-        then
-            sudo apt install "$apt_packet"
-        else
-            if $required
-            then
-                echo "hey requires $name"
-                exit 1
-            fi
-        fi
+        echo "hey requires $name"
+        exit 1
     fi
 }
 
@@ -187,6 +179,19 @@ tag_name()
     cat "$tag_file"
 }
 
+declare -A DONE=()
+
+once()
+{
+    if [ -z "${DONE[$1]}" ]
+    then
+        DONE[$1]=true
+        true
+    else
+        false
+    fi
+}
+
 install-all()
 {
     # shellcheck disable=SC2046
@@ -211,39 +216,31 @@ luax-target()
     fi
 }
 
-bang_installed=false
-
 install-bang()
 {
-    $bang_installed && return
+    once bang || return
     install-luax
     figlet Bang
     gitclone https://github.com/CDSoft/bang
     ninja clean -C $REPOS/bang
     PREFIX=$PREFIX ninja install -C $REPOS/bang
     luax-target bang "$(ls $REPOS/bang/{src,lib}/*.lua)" "$REPOS/bang/.build/version"
-    bang_installed=true
 }
-
-calculadoira_installed=false
 
 install-calculadoira()
 {
-    $calculadoira_installed && return
+    once calculadoira || return
     install-luax
     figlet Calculadoira
     gitclone https://github.com/CDSoft/calculadoira
     ninja clean -C $REPOS/calculadoira
     PREFIX=$PREFIX ninja install -C $REPOS/calculadoira
     luax-target calculadoira "$(ls $REPOS/calculadoira/src/*.lua)"
-    calculadoira_installed=true
 }
-
-ditaa_installed=false
 
 install-ditaa()
 {
-    $ditaa_installed && return
+    once ditaa || return
     figlet ditaa
     local DITAA_VERSION
     DITAA_VERSION=$(tag_name stathissideris/ditaa)
@@ -252,28 +249,22 @@ install-ditaa()
         || wget "https://github.com/stathissideris/ditaa/releases/download/${DITAA_VERSION}/ditaa-${DITAA_VERSION#v}-standalone.jar" \
             -O "$REPOS/ditaa/ditaa-${DITAA_VERSION#v}-standalone.jar"
     cp -v "$REPOS/ditaa/ditaa-${DITAA_VERSION#v}-standalone.jar" $PREFIX/bin/ditaa.jar
-    ditaa_installed=true
 }
-
-lsvg_installed=false
 
 install-lsvg()
 {
-    $lsvg_installed && return
+    once lsvg || return
     install-luax
     figlet lsvg
     gitclone https://github.com/CDSoft/lsvg
     ninja clean -C $REPOS/lsvg
     PREFIX=$PREFIX ninja install -C $REPOS/lsvg
     luax-target lsvg "$(ls $REPOS/lsvg/src/*.lua)"
-    lsvg_installed=true
 }
-
-luax_installed=false
 
 install-luax()
 {
-    $luax_installed && return
+    once luax || return
     figlet LuaX
     gitclone https://github.com/CDSoft/luax
     PREFIX=$PREFIX ninja install -C $REPOS/luax
@@ -286,27 +277,22 @@ install-luax()
         esac
     fi
     eval "$($REPOS/luax/.build/bin/luax env)"
-    luax_installed=true
 }
-
-panda_installed=false
 
 install-panda()
 {
-    $panda_installed && return
+    once panda || return
+    install-luax
     install-pandoc
     figlet Panda
     gitclone https://github.com/CDSoft/panda
     ninja clean -C $REPOS/panda
     PREFIX=$PREFIX ninja install -C $REPOS/panda
-    panda_installed=true
 }
-
-pandoc_installed=false
 
 install-pandoc()
 {
-    $pandoc_installed && return
+    once pandoc || return
     figlet Pandoc
     mkdir -p "$REPOS/pandoc/$TARGET" "$PREFIX/bin"
     local PANDOC_VERSION
@@ -344,40 +330,31 @@ install-pandoc()
             ;;
         (*) echo "$(target): unsupported platform for Pandoc"; exit 1 ;;
     esac
-    pandoc_installed=true
 }
-
-pandoc_latex_template_installed=false
 
 install-pandoc-latex-template()
 {
-    $pandoc_latex_template_installed && return
+    once pandoc-latex-template || return
     install-pandoc
     figlet Pandoc LaTeX template
     gitclone https://github.com/Wandmalfarbe/pandoc-latex-template.git
     mkdir -p $PREFIX/share/pandoc
     cp -v $REPOS/pandoc-latex-template.git/eisvogel.tex $PREFIX/share/pandoc
-    pandoc_latex_template_installed=true
 }
-
-pandoc_panam_css=false
 
 install-pandoc-panam-css()
 {
-    $pandoc_panam_css && return
+    once pandoc-panam-css || return
     install-pandoc
     figlet Pandoc Pan-Am CSS
     gitclone https://github.com/CDSoft/pan-am
     mkdir -p $PREFIX/share/pandoc
     cp -v $REPOS/pan-am/styling.css $PREFIX/share/pandoc/panam.css
-    pandoc_panam_css=true
 }
-
-plantuml_installed=false
 
 install-plantuml()
 {
-    $plantuml_installed && return
+    once plantuml || return
     figlet PlantUML
     local PLANTUML_VERSION
     PLANTUML_VERSION=$(tag_name plantuml/plantuml)
@@ -386,28 +363,22 @@ install-plantuml()
         || wget "https://github.com/plantuml/plantuml/releases/download/${PLANTUML_VERSION}/plantuml-pdf-${PLANTUML_VERSION#v}.jar" \
             -O "$REPOS/plantuml/plantuml-pdf-${PLANTUML_VERSION#v}.jar"
     cp -v "$REPOS/plantuml/plantuml-pdf-${PLANTUML_VERSION#v}.jar" $PREFIX/bin/plantuml.jar
-    plantuml_installed=true
 }
-
-tagref_installed=false
 
 install-tagref()
 {
-    $tagref_installed && return
+    once tagref || return
     install-luax
     figlet tagref
     gitclone https://github.com/CDSoft/tagref
     ninja clean -C $REPOS/tagref
     PREFIX=$PREFIX ninja install -C $REPOS/tagref
     luax-target tagref "$(ls $REPOS/tagref/src/*.lua)"
-    tagref_installed=true
 }
-
-typst_installed=false
 
 install-typst()
 {
-    $typst_installed && return
+    once typst || return
     figlet Typst
     local TYPST_VERSION
     TYPST_VERSION=$(tag_name typst/typst)
@@ -445,20 +416,17 @@ install-typst()
             ;;
         (*) echo "$(target): unsupported platform for Typst"; exit 1 ;;
     esac
-    typst_installed=true
 }
-
-ypp_installed=false
 
 install-ypp()
 {
-    $ypp_installed && return
+    once ypp || return
+    install-luax
     figlet ypp
     gitclone https://github.com/CDSoft/ypp
     ninja clean -C $REPOS/ypp
     PREFIX=$PREFIX ninja install -C $REPOS/ypp
     luax-target ypp "$(ls $REPOS/ypp/src/*.lua)" "$(ls $REPOS/ypp/.build/src/*.lua)"
-    ypp_installed=true
 }
 
 main()
