@@ -179,13 +179,13 @@ tag_name()
     cat "$tag_file"
 }
 
-declare -A DONE=()
+declare -A ALREADY_INSTALLED=()
 
 once()
 {
-    if [ -z "${DONE[$1]}" ]
+    if [ -z "${ALREADY_INSTALLED[$1]}" ]
     then
-        DONE[$1]=true
+        ALREADY_INSTALLED[$1]=true
         true
     else
         false
