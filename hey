@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/bash
 
 # This file is part of hey.
 #
@@ -40,7 +40,7 @@ Commands:
     install     install a packet
     clean       clean cache
 
-install arguments
+install arguments:
     packages    package names to install
                 (see list)
 
@@ -150,8 +150,8 @@ gitclone()
 target()
 {
     case "$TARGET" in
-        ("")    [ -x $PREFIX/bin/luax ] || install-luax
-                $PREFIX/bin/luax -e 'print(sys.os.."-"..sys.arch)'
+        ("")    [ -x $REPOS/luax/.build/bin/luax ] || compile-luax
+                $REPOS/luax/.build/bin/luax -e 'print(sys.os.."-"..sys.arch)'
                 ;;
         (x86_64-linux-*)    echo "linux-x86_64" ;;
         (aarch64-linux-*)   echo "linux-aarch64" ;;
@@ -183,9 +183,9 @@ declare -A ALREADY_INSTALLED=()
 
 once()
 {
-    if [ -z "${ALREADY_INSTALLED[$1]}" ]
+    if [ -z "${ALREADY_INSTALLED["$1"]}" ]
     then
-        ALREADY_INSTALLED[$1]=true
+        ALREADY_INSTALLED["$1"]=true
         true
     else
         false
@@ -219,7 +219,7 @@ luax-target()
 install-bang()
 {
     once bang || return
-    install-luax
+    compile-luax
     figlet Bang
     gitclone https://github.com/CDSoft/bang
     ninja clean -C $REPOS/bang
@@ -230,7 +230,7 @@ install-bang()
 install-calculadoira()
 {
     once calculadoira || return
-    install-luax
+    compile-luax
     figlet Calculadoira
     gitclone https://github.com/CDSoft/calculadoira
     ninja clean -C $REPOS/calculadoira
@@ -254,7 +254,7 @@ install-ditaa()
 install-lsvg()
 {
     once lsvg || return
-    install-luax
+    compile-luax
     figlet lsvg
     gitclone https://github.com/CDSoft/lsvg
     ninja clean -C $REPOS/lsvg
@@ -262,11 +262,20 @@ install-lsvg()
     luax-target lsvg "$(ls $REPOS/lsvg/src/*.lua)"
 }
 
+compile-luax()
+{
+    once compile-luax || return
+    figlet "LuaX compilation"
+    gitclone https://github.com/CDSoft/luax
+    ninja compile -C $REPOS/luax
+    eval "$($REPOS/luax/.build/bin/luax env)"
+}
+
 install-luax()
 {
+    compile-luax
     once luax || return
     figlet LuaX
-    gitclone https://github.com/CDSoft/luax
     PREFIX=$PREFIX ninja install -C $REPOS/luax
     if [ -n "$TARGET" ]
     then
@@ -276,14 +285,14 @@ install-luax()
             (*)           cp -av "$REPOS/luax/.build/bin/luax-$TARGET"     $PREFIX/bin/luax     ;;
         esac
     fi
-    eval "$($REPOS/luax/.build/bin/luax env)"
 }
 
 install-panda()
 {
     once panda || return
-    install-luax
-    install-pandoc
+    compile-luax
+    install-pandoc-latex-template
+    install-pandoc-panam-css
     figlet Panda
     gitclone https://github.com/CDSoft/panda
     ninja clean -C $REPOS/panda
@@ -335,7 +344,6 @@ install-pandoc()
 install-pandoc-latex-template()
 {
     once pandoc-latex-template || return
-    install-pandoc
     figlet Pandoc LaTeX template
     gitclone https://github.com/Wandmalfarbe/pandoc-latex-template.git
     mkdir -p $PREFIX/share/pandoc
@@ -345,7 +353,6 @@ install-pandoc-latex-template()
 install-pandoc-panam-css()
 {
     once pandoc-panam-css || return
-    install-pandoc
     figlet Pandoc Pan-Am CSS
     gitclone https://github.com/CDSoft/pan-am
     mkdir -p $PREFIX/share/pandoc
@@ -368,7 +375,7 @@ install-plantuml()
 install-tagref()
 {
     once tagref || return
-    install-luax
+    compile-luax
     figlet tagref
     gitclone https://github.com/CDSoft/tagref
     ninja clean -C $REPOS/tagref
@@ -421,7 +428,7 @@ install-typst()
 install-ypp()
 {
     once ypp || return
-    install-luax
+    compile-luax
     figlet ypp
     gitclone https://github.com/CDSoft/ypp
     ninja clean -C $REPOS/ypp

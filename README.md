@@ -1,25 +1,29 @@
-hey
-===
+# hey
 
-`hey` is an helper script to install some [CDSoft](https://github.com/CDSoft) programs and related softwares.
+`hey` is a set of tools to install some [CDSoft](https://github.com/CDSoft) programs and related softwares.
+These softwares can be installed from sources (recommended) or binaries (may be outdated).
 
-Download
-========
+[`hey`](https://github.com/CDSoft/hey) is available at [github.com/CDSoft](https://github.com/CDSoft/hey).
 
-[`hey`](https://raw.githubusercontent.com/CDSoft/hey/master/hey) is a single bash script
-available at <https://github.com/CDSoft/hey>.
+# Installation from sources
+
+This chapter describes the installation of the latest versions of these softwares.
+To install other version, please use instructions on their web sites.
+
+## Download
+
+[`hey`](https://cdelord.fr/hey/hey) is a single bash script that compiles and installs CDSoft programs.
 
 Just download it and run.
 
 ```
-$ wget https://raw.githubusercontent.com/CDSoft/hey/master/hey
+$ wget https://cdelord.fr/hey/hey
 $ chmod +x hey
 ```
 
-Usage
-=====
+## Usage
 
-## Help
+### Help
 
 ```
 $ hey help
@@ -39,7 +43,7 @@ install arguments
                 (see list)
 ```
 
-## Packages
+### Packages
 
 ```
 $ hey list
@@ -83,7 +87,7 @@ typst   Focus on your text and let Typst take care of layout and formatting
 | `plantuml`                      | <https://github.com/plantuml/plantuml>                      |
 | `typst`                         | <https://github.com/typst/typst>                            |
 
-## Example
+### Example
 
 E.g. to install LuaX and Bang in `path/to/my/softs`:
 
@@ -94,8 +98,77 @@ $ hey -p path/to/my/softs install luax bang
 
 Note that the installation of LuaX can be long, especially on older computers.
 
-License
-=======
+# Installation of precompiled binaries
+
+This chapter describes the installation of the (more or less) latest versions of these softwares
+using binary repositories.
+
+## Download
+
+There is a download helper for each supported platform:
+
+| Download helper                                                               | Platform                  |
+| ----------------------------------------------------------------------------- | ------------------------- |
+| [hey-x86_64-linux-gnu](https://cdelord.fr/hey/hey-x86_64-linux-gnu)           | 64-bit Intel Linux (libc) |
+| [hey-x86_64-linux-musl](https://cdelord.fr/hey/hey-x86_64-linux-musl)         | 64-bit Intel Linux (musl) |
+| [hey-aarch64-linux-gnu](https://cdelord.fr/hey/hey-aarch64-linux-gnu)         | 64-bit ARM Linux (libc)   |
+| [hey-aarch64-linux-musl](https://cdelord.fr/hey/hey-aarch64-linux-musl)       | 64-bit ARM Linux (musl)   |
+| [hey-x86_64-macos-none](https://cdelord.fr/hey/hey-x86_64-macos-none)         | 64-bit Intel MacOS        |
+| [hey-aarch64-macos-none](https://cdelord.fr/hey/hey-aarch64-macos-none)       | 64-bit ARM MacOS          |
+| [hey-x86_64-windows-gnu](https://cdelord.fr/hey/hey-x86_64-windows-gnu.exe)   | 64-bit Intel Windows      |
+
+Just download the installer for your favorite platform. E.g.:
+
+```
+$ wget https://cdelord.fr/hey/hey-x86_64-linux-musl
+$ chmod +x hey-x86_64-linux-musl
+```
+
+## Usage
+
+### Help
+
+```
+$ hey-x86_64-linux-musl help
+Install CDSoft programs for x86_64-linux-musl
+
+Options:
+    list    List available packages
+    all     Install all available packages
+    <dir>   Change the installation prefix (default: ~/.local)
+    <name>  Install the packet <name>
+```
+
+### Packages
+
+```
+$ hey-x86_64-linux-musl list
+Available packages:
+        bang
+        calculadoira
+        ditaa
+        lsvg
+        luax
+        panda
+        pandoc
+        plantuml
+        tagref
+        typst
+        ypp
+```
+
+Note that `panda` and `pandoc` packages also install `pandoc-latex-template` and `pandoc-panam-css`.
+
+### Example
+
+E.g. to install LuaX and Bang in `path/to/my/softs`:
+
+```
+$ hey-x86_64-linux-musl path/to/my/softs luax bang
+...
+```
+
+# License
 
     This file is part of hey.
 
