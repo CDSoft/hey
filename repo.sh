@@ -55,6 +55,11 @@ build()
     rm -rf "$OUT/$TARGET/tmp-$SOFT"
     mkdir -p "$OUT/$TARGET/tmp-$SOFT"
     ./hey -p "$OUT/$TARGET/tmp-$SOFT" -t "$TARGET" install "$SOFT" "$@"
+    case "$SOFT" in
+        pandoc) rm -f "$OUT/$TARGET/tmp-$SOFT/bin/pandoc-lua"
+                rm -f "$OUT/$TARGET/tmp-$SOFT/bin/pandoc-server"
+                ;;
+    esac
     ./pack.lua "$OUT/$TARGET/tmp-$SOFT" "$OUT/$TARGET/$SOFT.pkg"
     rm -rf "$OUT/$TARGET/tmp-$SOFT"
 }
