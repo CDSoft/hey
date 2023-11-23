@@ -179,6 +179,11 @@ tag_name()
     cat "$tag_file"
 }
 
+title()
+{
+    figlet -t "$*"
+}
+
 declare -A ALREADY_INSTALLED=()
 
 once()
@@ -220,7 +225,7 @@ install-bang()
 {
     once bang || return
     compile-luax
-    figlet Bang
+    title Bang
     gitclone https://github.com/CDSoft/bang
     ninja clean -C $REPOS/bang
     PREFIX=$PREFIX ninja install -C $REPOS/bang
@@ -231,7 +236,7 @@ install-calculadoira()
 {
     once calculadoira || return
     compile-luax
-    figlet Calculadoira
+    title Calculadoira
     gitclone https://github.com/CDSoft/calculadoira
     ninja clean -C $REPOS/calculadoira
     PREFIX=$PREFIX ninja install -C $REPOS/calculadoira
@@ -241,7 +246,7 @@ install-calculadoira()
 install-ditaa()
 {
     once ditaa || return
-    figlet ditaa
+    title ditaa
     local DITAA_VERSION
     DITAA_VERSION=$(tag_name stathissideris/ditaa)
     mkdir -p $REPOS/ditaa $PREFIX/bin
@@ -255,7 +260,7 @@ install-lsvg()
 {
     once lsvg || return
     compile-luax
-    figlet lsvg
+    title lsvg
     gitclone https://github.com/CDSoft/lsvg
     ninja clean -C $REPOS/lsvg
     PREFIX=$PREFIX ninja install -C $REPOS/lsvg
@@ -265,7 +270,7 @@ install-lsvg()
 compile-luax()
 {
     once compile-luax || return
-    figlet "LuaX compilation"
+    title "LuaX compilation"
     gitclone https://github.com/CDSoft/luax
     ninja compile -C $REPOS/luax
     eval "$($REPOS/luax/.build/bin/luax env)"
@@ -275,7 +280,7 @@ install-luax()
 {
     compile-luax
     once luax || return
-    figlet LuaX
+    title LuaX
     PREFIX=$PREFIX ninja install -C $REPOS/luax
     if [ -n "$TARGET" ]
     then
@@ -293,7 +298,7 @@ install-panda()
     compile-luax
     install-pandoc-latex-template
     install-pandoc-panam-css
-    figlet Panda
+    title Panda
     gitclone https://github.com/CDSoft/panda
     ninja clean -C $REPOS/panda
     PREFIX=$PREFIX ninja install -C $REPOS/panda
@@ -302,7 +307,7 @@ install-panda()
 install-pandoc()
 {
     once pandoc || return
-    figlet Pandoc
+    title Pandoc
     mkdir -p "$REPOS/pandoc/$TARGET" "$PREFIX/bin"
     local PANDOC_VERSION
     PANDOC_VERSION=$(tag_name jgm/pandoc)
@@ -344,7 +349,7 @@ install-pandoc()
 install-pandoc-latex-template()
 {
     once pandoc-latex-template || return
-    figlet Pandoc LaTeX template
+    title Pandoc LaTeX template
     gitclone https://github.com/Wandmalfarbe/pandoc-latex-template.git
     mkdir -p $PREFIX/share/pandoc
     cp -v $REPOS/pandoc-latex-template.git/eisvogel.tex $PREFIX/share/pandoc
@@ -353,7 +358,7 @@ install-pandoc-latex-template()
 install-pandoc-panam-css()
 {
     once pandoc-panam-css || return
-    figlet Pandoc Pan-Am CSS
+    title Pandoc Pan-Am CSS
     gitclone https://github.com/CDSoft/pan-am
     mkdir -p $PREFIX/share/pandoc
     cp -v $REPOS/pan-am/styling.css $PREFIX/share/pandoc/panam.css
@@ -362,7 +367,7 @@ install-pandoc-panam-css()
 install-plantuml()
 {
     once plantuml || return
-    figlet PlantUML
+    title PlantUML
     local PLANTUML_VERSION
     PLANTUML_VERSION=$(tag_name plantuml/plantuml)
     mkdir -p $REPOS/plantuml $PREFIX/bin
@@ -376,7 +381,7 @@ install-tagref()
 {
     once tagref || return
     compile-luax
-    figlet tagref
+    title tagref
     gitclone https://github.com/CDSoft/tagref
     ninja clean -C $REPOS/tagref
     PREFIX=$PREFIX ninja install -C $REPOS/tagref
@@ -386,7 +391,7 @@ install-tagref()
 install-typst()
 {
     once typst || return
-    figlet Typst
+    title Typst
     local TYPST_VERSION
     TYPST_VERSION=$(tag_name typst/typst)
     mkdir -p "$REPOS/typst/$TARGET/$TYPST_VERSION" "$PREFIX/bin"
@@ -429,7 +434,7 @@ install-ypp()
 {
     once ypp || return
     compile-luax
-    figlet ypp
+    title ypp
     gitclone https://github.com/CDSoft/ypp
     ninja clean -C $REPOS/ypp
     PREFIX=$PREFIX ninja install -C $REPOS/ypp
