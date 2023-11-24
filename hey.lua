@@ -75,6 +75,7 @@ local function install(name)
         i = k
         fs.mkdirs(prefix/F(filename):dirname())
         print("", "", prefix/filename, #content.." bytes")
+        fs.rm(prefix/filename)
         assert(fs.write(prefix/filename, content))
         assert(fs.chmod(prefix/filename, mode))
         assert(fs.touch(prefix/filename, mtime))
