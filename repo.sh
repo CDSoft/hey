@@ -25,9 +25,20 @@ then
     exit 1
 fi
 
+JSON="$OUT/hey.json"
+echo "{" > "$JSON"
+
+remove_trailing_comma()
+{
+    sed -i '$s/,$//' "$JSON"
+}
+
 build-target()
 {
     local TARGET="$1"
+
+    echo "  \"$TARGET\": {" >> "$JSON"
+
     build "$TARGET" luax
     build "$TARGET" bang
     build "$TARGET" calculadoira
@@ -42,9 +53,8 @@ build-target()
 
     "$OUT/luax/bin/luax" -t "$TARGET" -o "$OUT/hey-$TARGET" hey.lua
 
-    "$OUT/luax/bin/luax" \
-        -e "fs.ls[[$OUT/$TARGET/*.pkg]]:map(F.compose{fs.splitext,fs.basename}):foreach(print)" \
-        > "$OUT/$TARGET/packages.lst"
+    remove_trailing_comma
+    echo "  }," >> "$JSON"
 }
 
 build()
@@ -52,6 +62,9 @@ build()
     local TARGET="$1"
     local SOFT="$2"
     shift 2
+
+    echo "    \"$SOFT\": {" >> "$JSON"
+
     rm -rf "$OUT/$TARGET/tmp-$SOFT"
     mkdir -p "$OUT/$TARGET/tmp-$SOFT"
     ./hey -p "$OUT/$TARGET/tmp-$SOFT" -t "$TARGET" install "$SOFT" "$@"
@@ -62,6 +75,17 @@ build()
     esac
     ./pack.lua "$OUT/$TARGET/tmp-$SOFT" "$OUT/$TARGET/$SOFT.pkg"
     rm -rf "$OUT/$TARGET/tmp-$SOFT"
+
+    echo "      \"package\": \"$TARGET/$SOFT.pkg\"," >> "$JSON"
+    local SHA1
+    SHA1=$("$OUT/luax/bin/luax" -e "print(crypt.sha1(io.stdin:read'a'))" < "$OUT/$TARGET/$SOFT.pkg")
+    echo "      \"sha1sum\": \"$SHA1\"," >> "$JSON"
+    local SIZE
+    SIZE=$("$OUT/luax/bin/luax" -e "print(fs.stat'$OUT/$TARGET/$SOFT.pkg'.size)")
+    echo "      \"size\": \"$SIZE\"," >> "$JSON"
+
+    remove_trailing_comma
+    echo "    }," >> "$JSON"
 }
 
 build-luax()
@@ -86,3 +110,6 @@ build-target x86_64-macos-none
 build-target aarch64-macos-none
 
 build-target x86_64-windows-gnu
+
+remove_trailing_comma
+echo "}" >> "$JSON"

@@ -22,14 +22,17 @@ local F = require "F"
 local fs = require "fs"
 local sys = require "sys"
 local http = require "socket.http"
+local json = require "json"
 
 local target = F{sys.arch, sys.os, sys.abi}:str"-"
-local url = "http://cdelord.fr/hey"/target
+local url = "http://cdelord.fr/hey"
 
 local _packages = nil
 local function packages()
-    _packages = _packages or http.request(url/"packages.lst")
-    return F(_packages):words()
+    if _packages then return _packages end
+    local hey_json = assert(http.request(url/"hey.json"))
+    _packages = assert(assert(json.decode(hey_json))[target], target..": unknwon target")
+    return _packages
 end
 
 local function help()
@@ -50,12 +53,15 @@ end
 local prefix = os.getenv "HOME" / ".local"
 
 local function install(name)
+    local package = assert(packages()[name], name..": unknown package")
     assert(fs.is_dir(prefix))
-    local archive_url = url/name..".pkg"
+    local archive_url = url/package.package
     print("Download", archive_url)
     local archive = http.request(archive_url)
+    assert(#archive == tonumber(package.size), name..": corrupted package")
+    assert(archive:sha1() == package.sha1sum, name..": corrupted package")
     archive = assert(archive:unlz4())
-    print("Install ", name.." to "..prefix)
+    print("Install ", name)
     local i = 1
     while i ~= nil and i < #archive do
         local magic1, filename,
@@ -74,7 +80,7 @@ local function install(name)
         content = assert(assert(content):unlz4())
         i = k
         fs.mkdirs(prefix/F(filename):dirname())
-        print("", "", prefix/filename, #content.." bytes")
+        print("", "", prefix/filename)
         fs.rm(prefix/filename)
         assert(fs.write(prefix/filename, content))
         assert(fs.chmod(prefix/filename, mode))
@@ -87,15 +93,12 @@ F.foreach(arg, function(a)
         help()
     elseif a == "list" then
         print("Available packages:")
-        packages():foreach(function(name) print("", name) end)
+        F.foreachk(packages(), function(name) print("", name) end)
     elseif a == "all" then
-        packages():foreach(install)
+        F.foreachk(packages(), install)
     elseif fs.is_dir(a) then
         prefix = a
-    elseif packages():elem(a) then
-        install(a)
     else
-        print("Unknown package", a)
-        os.exit(1)
+        install(a)
     end
 end)
