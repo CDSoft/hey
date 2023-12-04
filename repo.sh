@@ -25,20 +25,21 @@ then
     exit 1
 fi
 
-JSON="$OUT/hey.json"
-echo "{" > "$JSON"
-
-remove_trailing_comma()
-{
-    sed -i '$s/,$//' "$JSON"
-}
+INDEX="$OUT/hey.index"
+rm -f "$INDEX"
 
 build-target()
 {
     local TARGET="$1"
 
-    echo "  \"$TARGET\": {" >> "$JSON"
+    {
+        echo "### $TARGET"
+        echo ""
+        printf "| %-88s | %-80s |\n" "Package" "Command"
+        printf "| %-88s | %-80s |\n" "-------" "-------"
+    } >> "$INDEX"
 
+    build "$TARGET" all
     build "$TARGET" luax
     build "$TARGET" bang
     build "$TARGET" calculadoira
@@ -51,10 +52,7 @@ build-target()
     build "$TARGET" plantuml
     build "$TARGET" typst
 
-    "$OUT/luax/bin/luax" -t "$TARGET" -o "$OUT/hey-$TARGET" hey.lua
-
-    remove_trailing_comma
-    echo "  }," >> "$JSON"
+    echo "" >> "$INDEX"
 }
 
 build()
@@ -63,42 +61,55 @@ build()
     local SOFT="$2"
     shift 2
 
-    echo "    \"$SOFT\": {" >> "$JSON"
-
-    rm -rf "$OUT/$TARGET/tmp-$SOFT"
-    mkdir -p "$OUT/$TARGET/tmp-$SOFT"
-    ./hey -p "$OUT/$TARGET/tmp-$SOFT" -t "$TARGET" install "$SOFT" "$@"
-    case "$SOFT" in
-        pandoc) rm -f "$OUT/$TARGET/tmp-$SOFT/bin/pandoc-lua"
-                rm -f "$OUT/$TARGET/tmp-$SOFT/bin/pandoc-server"
-                ;;
+    local SOFT_NAME=$SOFT
+    local DESCR=""
+    case $SOFT in
+        all)    SOFT_NAME=cdsoft; DESCR="(all packages)" ;;
     esac
-    ./pack.lua "$OUT/$TARGET/tmp-$SOFT" "$OUT/$TARGET/$SOFT.pkg"
-    rm -rf "$OUT/$TARGET/tmp-$SOFT"
 
-    echo "      \"package\": \"$TARGET/$SOFT.pkg\"," >> "$JSON"
-    local SHA1
-    SHA1=$("$OUT/luax/bin/luax" -e "print(crypt.sha1(io.stdin:read'a'))" < "$OUT/$TARGET/$SOFT.pkg")
-    echo "      \"sha1sum\": \"$SHA1\"," >> "$JSON"
-    local SIZE
-    SIZE=$("$OUT/luax/bin/luax" -e "print(fs.stat'$OUT/$TARGET/$SOFT.pkg'.size)")
-    echo "      \"size\": \"$SIZE\"," >> "$JSON"
+    local TMP="$OUT/$TARGET-$SOFT_NAME"
+    local ARCHIVE="$OUT/$SOFT_NAME-$TARGET.tar.xz"
+    local SCRIPT="$OUT/$SOFT_NAME-$TARGET.sh"
+    local ARCHIVE_NAME
+    local SCRIPT_NAME
+    ARCHIVE_NAME="$(basename "$ARCHIVE")"
+    SCRIPT_NAME="$(basename "$SCRIPT")"
 
-    remove_trailing_comma
-    echo "    }," >> "$JSON"
-}
+    rm -rf "$TMP"
+    mkdir -p "$TMP/$SOFT_NAME/$TARGET"
+    ./hey -p "$TMP/$SOFT_NAME/$TARGET" -t "$TARGET" install "$SOFT" "$@"
+    (   cd "$TMP" && \
+        XZ_OPT=-6 tar -cJf "$ARCHIVE" --transform="s|^./||" .
+        rm -rf "$TMP"
+    ) &
 
-build-luax()
-{
-    rm -rf "$OUT/luax"
-    mkdir -p "$OUT/luax"
-    ./hey -p "$OUT/luax" install luax
-    trap 'rm -rf $OUT/luax' EXIT
+    local URL="https://cdelord.fr/hey"
+
+    cat <<EOF > "$SCRIPT"
+#!/usr/bin/env sh
+
+set -e
+
+ARCHIVE_URL="$URL/$ARCHIVE_NAME"
+
+[ -z "\$PREFIX" ] && PREFIX=~/.local
+if ! [ -d \$PREFIX ]
+then
+    printf "%s: not a directory" "\$PREFIX"
+    exit 1
+fi
+
+archive=\$(mktemp).tar.xz
+printf "Download %s\n" "\$ARCHIVE_URL"
+curl --fail --location --output "\$archive" "\$ARCHIVE_URL"
+printf "Install %s in %s\n" "$SOFT_NAME" "\$PREFIX"
+tar xJvf "\$archive" --strip-components=2 -C "\$PREFIX"
+EOF
+
+    printf "| %-88s | %-80s |\n" "[$SOFT_NAME]($URL/$ARCHIVE_NAME) $DESCR" "\`curl -sSL $URL/$SCRIPT_NAME \\| sh\`" >> "$INDEX"
 }
 
 cp hey "$OUT/hey"
-
-build-luax
 
 build-target x86_64-linux-musl
 build-target x86_64-linux-gnu
@@ -111,5 +122,5 @@ build-target aarch64-macos-none
 
 build-target x86_64-windows-gnu
 
-remove_trailing_comma
-echo "}" >> "$JSON"
+figlet "Finalizing..."
+wait
