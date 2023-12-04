@@ -28,6 +28,9 @@ fi
 JSON="$OUT/hey.json"
 echo "{" > "$JSON"
 
+INDEX="$OUT/hey.index"
+rm -f "$INDEX"
+
 remove_trailing_comma()
 {
     sed -i '$s/,$//' "$JSON"
@@ -38,7 +41,12 @@ build-target()
     local TARGET="$1"
 
     echo "  \"$TARGET\": {" >> "$JSON"
+    echo "### $TARGET" >> "$INDEX"
+    echo "" >> "$INDEX"
+    printf "| %-80s | %-80s |\n" "Package" "Command" >> "$INDEX"
+    printf "| %-80s | %-80s |\n" "-------" "-------" >> "$INDEX"
 
+    build "$TARGET" all
     build "$TARGET" luax
     build "$TARGET" bang
     build "$TARGET" calculadoira
@@ -51,10 +59,9 @@ build-target()
     build "$TARGET" plantuml
     build "$TARGET" typst
 
-    "$OUT/luax/bin/luax" -t "$TARGET" -o "$OUT/hey-$TARGET" hey.lua
-
     remove_trailing_comma
     echo "  }," >> "$JSON"
+    echo "" >> "$INDEX"
 }
 
 build()
@@ -66,23 +73,45 @@ build()
     echo "    \"$SOFT\": {" >> "$JSON"
 
     rm -rf "$OUT/$TARGET/tmp-$SOFT"
-    mkdir -p "$OUT/$TARGET/tmp-$SOFT"
-    ./hey -p "$OUT/$TARGET/tmp-$SOFT" -t "$TARGET" install "$SOFT" "$@"
+    mkdir -p "$OUT/$TARGET/tmp-$SOFT/$SOFT/$TARGET"
+    ./hey -p "$OUT/$TARGET/tmp-$SOFT/$SOFT/$TARGET" -t "$TARGET" install "$SOFT" "$@"
     case "$SOFT" in
-        pandoc) rm -f "$OUT/$TARGET/tmp-$SOFT/bin/pandoc-lua"
-                rm -f "$OUT/$TARGET/tmp-$SOFT/bin/pandoc-server"
-                ;;
+        all|pandoc) rm -f "$OUT/$TARGET/tmp-$SOFT/$SOFT/$TARGET/bin/pandoc-lua"
+                    rm -f "$OUT/$TARGET/tmp-$SOFT/$SOFT/$TARGET/bin/pandoc-server"
+                    ;;
     esac
-    ./pack.lua "$OUT/$TARGET/tmp-$SOFT" "$OUT/$TARGET/$SOFT.pkg"
-    rm -rf "$OUT/$TARGET/tmp-$SOFT"
+    (   cd "$OUT/$TARGET/tmp-$SOFT" && \
+        XZ_OPT=-6 tar -cJf "../$SOFT.tar.xz" .
+        rm -rf "$OUT/$TARGET/tmp-$SOFT"
+    ) &
 
-    echo "      \"package\": \"$TARGET/$SOFT.pkg\"," >> "$JSON"
-    local SHA1
-    SHA1=$("$OUT/luax/bin/luax" -e "print(crypt.sha1(io.stdin:read'a'))" < "$OUT/$TARGET/$SOFT.pkg")
-    echo "      \"sha1sum\": \"$SHA1\"," >> "$JSON"
-    local SIZE
-    SIZE=$("$OUT/luax/bin/luax" -e "print(fs.stat'$OUT/$TARGET/$SOFT.pkg'.size)")
-    echo "      \"size\": \"$SIZE\"," >> "$JSON"
+    local URL="https://cdelord.fr/hey/$TARGET/$SOFT"
+
+    cat <<EOF > "$OUT/$TARGET/$SOFT.sh"
+#!/usr/bin/env sh
+
+set -e
+
+URL="$URL.tar.xz"
+
+[ -z "\$PREFIX" ] && PREFIX=~/.local
+if ! [ -d \$PREFIX ]
+then
+    printf "%s: not a directory" "\$PREFIX"
+    exit 1
+fi
+
+archive=\$(mktemp).tar.xz
+printf "Download %s\n" "\$URL"
+curl --fail --location --output "\$archive" "\$URL"
+printf "Install %s in %s\n" "$SOFT" "\$PREFIX"
+tar -xJv -C "\$PREFIX" --strip-components=2 -f "\$archive"
+EOF
+
+    echo "      \"archive\": \"$TARGET/$SOFT.tar.xz\"," >> "$JSON"
+    echo "      \"webinstall\": \"curl -sSL $URL.sh | sh\"," >> "$JSON"
+
+    printf "| %-80s | %-80s |\n" "[$SOFT]($URL.tar.xz)" "\`curl -sSL $URL.sh \\| sh\`" >> "$INDEX"
 
     remove_trailing_comma
     echo "    }," >> "$JSON"
@@ -113,3 +142,6 @@ build-target x86_64-windows-gnu
 
 remove_trailing_comma
 echo "}" >> "$JSON"
+
+figlet "Finalizing..."
+wait
