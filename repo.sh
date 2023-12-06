@@ -99,14 +99,16 @@ then
     exit 1
 fi
 
-archive=\$(mktemp).tar.xz
+tmp="\$(mktemp --directory --tmpdir hey.XXXXXX)"
+archive="\$tmp/$ARCHIVE_NAME"
+trap 'rm -rf "\$tmp"' EXIT
 printf "Download %s\n" "\$ARCHIVE_URL"
-curl --fail --location --output "\$archive" "\$ARCHIVE_URL"
+curl --fail --output "\$archive" "\$ARCHIVE_URL"
 printf "Install %s in %s\n" "$SOFT_NAME" "\$PREFIX"
 tar xJvf "\$archive" --strip-components=2 -C "\$PREFIX"
 EOF
 
-    printf "| %-88s | %-80s |\n" "[$SOFT_NAME]($URL/$ARCHIVE_NAME) $DESCR" "\`curl -sSL $URL/$SCRIPT_NAME \\| sh\`" >> "$INDEX"
+    printf "| %-88s | %-80s |\n" "[$SOFT_NAME]($URL/$ARCHIVE_NAME) $DESCR" "\`curl $URL/$SCRIPT_NAME \\| sh\`" >> "$INDEX"
 }
 
 cp hey "$OUT/hey"
