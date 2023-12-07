@@ -240,7 +240,7 @@ install-calculadoira()
     gitclone https://github.com/CDSoft/calculadoira
     ninja clean -C $REPOS/calculadoira
     PREFIX=$PREFIX ninja install -C $REPOS/calculadoira
-    luax-target calculadoira "$(ls $REPOS/calculadoira/src/*.lua)"
+    luax-target calculadoira "$(ls $REPOS/calculadoira/src/*)"
 }
 
 install-ditaa()
