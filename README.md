@@ -105,6 +105,8 @@ using binary repositories.
 
 ## Download
 
+### Linux / MacOS
+
 There is a download helper for each supported platform and package:
 
 ```sh
@@ -124,126 +126,132 @@ $ curl -sSL http://cdelord.fr/hey/luax-x86_64-linux-musl.sh | sh
 $ curl -sSL http://cdelord.fr/hey/bang-x86_64-linux-musl.sh | sh
 ```
 
+### Windows
+
+There is no install script.
+Windows users must download the ZIP archive and extract it manually
+(or upgrade Windows to a better OS, e.g. Linux ;-).
+
 ## Available binary archives
 
 ### x86_64-linux-musl
 
-| Package                                                                                  | Command                                                                          |
-| -------                                                                                  | -------                                                                          |
-| [cdsoft](https://cdelord.fr/hey/cdsoft-x86_64-linux-musl.tar.xz) (all packages)          | `curl https://cdelord.fr/hey/cdsoft-x86_64-linux-musl.sh \| sh`                  |
-| [luax](https://cdelord.fr/hey/luax-x86_64-linux-musl.tar.xz)                             | `curl https://cdelord.fr/hey/luax-x86_64-linux-musl.sh \| sh`                    |
-| [bang](https://cdelord.fr/hey/bang-x86_64-linux-musl.tar.xz)                             | `curl https://cdelord.fr/hey/bang-x86_64-linux-musl.sh \| sh`                    |
-| [calculadoira](https://cdelord.fr/hey/calculadoira-x86_64-linux-musl.tar.xz)             | `curl https://cdelord.fr/hey/calculadoira-x86_64-linux-musl.sh \| sh`            |
-| [lsvg](https://cdelord.fr/hey/lsvg-x86_64-linux-musl.tar.xz)                             | `curl https://cdelord.fr/hey/lsvg-x86_64-linux-musl.sh \| sh`                    |
-| [panda](https://cdelord.fr/hey/panda-x86_64-linux-musl.tar.xz)                           | `curl https://cdelord.fr/hey/panda-x86_64-linux-musl.sh \| sh`                   |
-| [tagref](https://cdelord.fr/hey/tagref-x86_64-linux-musl.tar.xz)                         | `curl https://cdelord.fr/hey/tagref-x86_64-linux-musl.sh \| sh`                  |
-| [ypp](https://cdelord.fr/hey/ypp-x86_64-linux-musl.tar.xz)                               | `curl https://cdelord.fr/hey/ypp-x86_64-linux-musl.sh \| sh`                     |
-| [ditaa](https://cdelord.fr/hey/ditaa-x86_64-linux-musl.tar.xz)                           | `curl https://cdelord.fr/hey/ditaa-x86_64-linux-musl.sh \| sh`                   |
-| [pandoc](https://cdelord.fr/hey/pandoc-x86_64-linux-musl.tar.xz)                         | `curl https://cdelord.fr/hey/pandoc-x86_64-linux-musl.sh \| sh`                  |
-| [plantuml](https://cdelord.fr/hey/plantuml-x86_64-linux-musl.tar.xz)                     | `curl https://cdelord.fr/hey/plantuml-x86_64-linux-musl.sh \| sh`                |
-| [typst](https://cdelord.fr/hey/typst-x86_64-linux-musl.tar.xz)                           | `curl https://cdelord.fr/hey/typst-x86_64-linux-musl.sh \| sh`                   |
+| Package                                                                         | Command                                                               |
+|---------------------------------------------------------------------------------|-----------------------------------------------------------------------|
+| [cdsoft](https://cdelord.fr/hey/cdsoft-x86_64-linux-musl.tar.xz) (all packages) | `curl https://cdelord.fr/hey/cdsoft-x86_64-linux-musl.sh \| sh`       |
+| [luax](https://cdelord.fr/hey/luax-x86_64-linux-musl.tar.xz)                    | `curl https://cdelord.fr/hey/luax-x86_64-linux-musl.sh \| sh`         |
+| [bang](https://cdelord.fr/hey/bang-x86_64-linux-musl.tar.xz)                    | `curl https://cdelord.fr/hey/bang-x86_64-linux-musl.sh \| sh`         |
+| [calculadoira](https://cdelord.fr/hey/calculadoira-x86_64-linux-musl.tar.xz)    | `curl https://cdelord.fr/hey/calculadoira-x86_64-linux-musl.sh \| sh` |
+| [lsvg](https://cdelord.fr/hey/lsvg-x86_64-linux-musl.tar.xz)                    | `curl https://cdelord.fr/hey/lsvg-x86_64-linux-musl.sh \| sh`         |
+| [panda](https://cdelord.fr/hey/panda-x86_64-linux-musl.tar.xz)                  | `curl https://cdelord.fr/hey/panda-x86_64-linux-musl.sh \| sh`        |
+| [tagref](https://cdelord.fr/hey/tagref-x86_64-linux-musl.tar.xz)                | `curl https://cdelord.fr/hey/tagref-x86_64-linux-musl.sh \| sh`       |
+| [ypp](https://cdelord.fr/hey/ypp-x86_64-linux-musl.tar.xz)                      | `curl https://cdelord.fr/hey/ypp-x86_64-linux-musl.sh \| sh`          |
+| [ditaa](https://cdelord.fr/hey/ditaa-x86_64-linux-musl.tar.xz)                  | `curl https://cdelord.fr/hey/ditaa-x86_64-linux-musl.sh \| sh`        |
+| [pandoc](https://cdelord.fr/hey/pandoc-x86_64-linux-musl.tar.xz)                | `curl https://cdelord.fr/hey/pandoc-x86_64-linux-musl.sh \| sh`       |
+| [plantuml](https://cdelord.fr/hey/plantuml-x86_64-linux-musl.tar.xz)            | `curl https://cdelord.fr/hey/plantuml-x86_64-linux-musl.sh \| sh`     |
+| [typst](https://cdelord.fr/hey/typst-x86_64-linux-musl.tar.xz)                  | `curl https://cdelord.fr/hey/typst-x86_64-linux-musl.sh \| sh`        |
 
 ### x86_64-linux-gnu
 
-| Package                                                                                  | Command                                                                          |
-| -------                                                                                  | -------                                                                          |
-| [cdsoft](https://cdelord.fr/hey/cdsoft-x86_64-linux-gnu.tar.xz) (all packages)           | `curl https://cdelord.fr/hey/cdsoft-x86_64-linux-gnu.sh \| sh`                   |
-| [luax](https://cdelord.fr/hey/luax-x86_64-linux-gnu.tar.xz)                              | `curl https://cdelord.fr/hey/luax-x86_64-linux-gnu.sh \| sh`                     |
-| [bang](https://cdelord.fr/hey/bang-x86_64-linux-gnu.tar.xz)                              | `curl https://cdelord.fr/hey/bang-x86_64-linux-gnu.sh \| sh`                     |
-| [calculadoira](https://cdelord.fr/hey/calculadoira-x86_64-linux-gnu.tar.xz)              | `curl https://cdelord.fr/hey/calculadoira-x86_64-linux-gnu.sh \| sh`             |
-| [lsvg](https://cdelord.fr/hey/lsvg-x86_64-linux-gnu.tar.xz)                              | `curl https://cdelord.fr/hey/lsvg-x86_64-linux-gnu.sh \| sh`                     |
-| [panda](https://cdelord.fr/hey/panda-x86_64-linux-gnu.tar.xz)                            | `curl https://cdelord.fr/hey/panda-x86_64-linux-gnu.sh \| sh`                    |
-| [tagref](https://cdelord.fr/hey/tagref-x86_64-linux-gnu.tar.xz)                          | `curl https://cdelord.fr/hey/tagref-x86_64-linux-gnu.sh \| sh`                   |
-| [ypp](https://cdelord.fr/hey/ypp-x86_64-linux-gnu.tar.xz)                                | `curl https://cdelord.fr/hey/ypp-x86_64-linux-gnu.sh \| sh`                      |
-| [ditaa](https://cdelord.fr/hey/ditaa-x86_64-linux-gnu.tar.xz)                            | `curl https://cdelord.fr/hey/ditaa-x86_64-linux-gnu.sh \| sh`                    |
-| [pandoc](https://cdelord.fr/hey/pandoc-x86_64-linux-gnu.tar.xz)                          | `curl https://cdelord.fr/hey/pandoc-x86_64-linux-gnu.sh \| sh`                   |
-| [plantuml](https://cdelord.fr/hey/plantuml-x86_64-linux-gnu.tar.xz)                      | `curl https://cdelord.fr/hey/plantuml-x86_64-linux-gnu.sh \| sh`                 |
-| [typst](https://cdelord.fr/hey/typst-x86_64-linux-gnu.tar.xz)                            | `curl https://cdelord.fr/hey/typst-x86_64-linux-gnu.sh \| sh`                    |
+| Package                                                                        | Command                                                              |
+|--------------------------------------------------------------------------------|----------------------------------------------------------------------|
+| [cdsoft](https://cdelord.fr/hey/cdsoft-x86_64-linux-gnu.tar.xz) (all packages) | `curl https://cdelord.fr/hey/cdsoft-x86_64-linux-gnu.sh \| sh`       |
+| [luax](https://cdelord.fr/hey/luax-x86_64-linux-gnu.tar.xz)                    | `curl https://cdelord.fr/hey/luax-x86_64-linux-gnu.sh \| sh`         |
+| [bang](https://cdelord.fr/hey/bang-x86_64-linux-gnu.tar.xz)                    | `curl https://cdelord.fr/hey/bang-x86_64-linux-gnu.sh \| sh`         |
+| [calculadoira](https://cdelord.fr/hey/calculadoira-x86_64-linux-gnu.tar.xz)    | `curl https://cdelord.fr/hey/calculadoira-x86_64-linux-gnu.sh \| sh` |
+| [lsvg](https://cdelord.fr/hey/lsvg-x86_64-linux-gnu.tar.xz)                    | `curl https://cdelord.fr/hey/lsvg-x86_64-linux-gnu.sh \| sh`         |
+| [panda](https://cdelord.fr/hey/panda-x86_64-linux-gnu.tar.xz)                  | `curl https://cdelord.fr/hey/panda-x86_64-linux-gnu.sh \| sh`        |
+| [tagref](https://cdelord.fr/hey/tagref-x86_64-linux-gnu.tar.xz)                | `curl https://cdelord.fr/hey/tagref-x86_64-linux-gnu.sh \| sh`       |
+| [ypp](https://cdelord.fr/hey/ypp-x86_64-linux-gnu.tar.xz)                      | `curl https://cdelord.fr/hey/ypp-x86_64-linux-gnu.sh \| sh`          |
+| [ditaa](https://cdelord.fr/hey/ditaa-x86_64-linux-gnu.tar.xz)                  | `curl https://cdelord.fr/hey/ditaa-x86_64-linux-gnu.sh \| sh`        |
+| [pandoc](https://cdelord.fr/hey/pandoc-x86_64-linux-gnu.tar.xz)                | `curl https://cdelord.fr/hey/pandoc-x86_64-linux-gnu.sh \| sh`       |
+| [plantuml](https://cdelord.fr/hey/plantuml-x86_64-linux-gnu.tar.xz)            | `curl https://cdelord.fr/hey/plantuml-x86_64-linux-gnu.sh \| sh`     |
+| [typst](https://cdelord.fr/hey/typst-x86_64-linux-gnu.tar.xz)                  | `curl https://cdelord.fr/hey/typst-x86_64-linux-gnu.sh \| sh`        |
 
 ### aarch64-linux-musl
 
-| Package                                                                                  | Command                                                                          |
-| -------                                                                                  | -------                                                                          |
-| [cdsoft](https://cdelord.fr/hey/cdsoft-aarch64-linux-musl.tar.xz) (all packages)         | `curl https://cdelord.fr/hey/cdsoft-aarch64-linux-musl.sh \| sh`                 |
-| [luax](https://cdelord.fr/hey/luax-aarch64-linux-musl.tar.xz)                            | `curl https://cdelord.fr/hey/luax-aarch64-linux-musl.sh \| sh`                   |
-| [bang](https://cdelord.fr/hey/bang-aarch64-linux-musl.tar.xz)                            | `curl https://cdelord.fr/hey/bang-aarch64-linux-musl.sh \| sh`                   |
-| [calculadoira](https://cdelord.fr/hey/calculadoira-aarch64-linux-musl.tar.xz)            | `curl https://cdelord.fr/hey/calculadoira-aarch64-linux-musl.sh \| sh`           |
-| [lsvg](https://cdelord.fr/hey/lsvg-aarch64-linux-musl.tar.xz)                            | `curl https://cdelord.fr/hey/lsvg-aarch64-linux-musl.sh \| sh`                   |
-| [panda](https://cdelord.fr/hey/panda-aarch64-linux-musl.tar.xz)                          | `curl https://cdelord.fr/hey/panda-aarch64-linux-musl.sh \| sh`                  |
-| [tagref](https://cdelord.fr/hey/tagref-aarch64-linux-musl.tar.xz)                        | `curl https://cdelord.fr/hey/tagref-aarch64-linux-musl.sh \| sh`                 |
-| [ypp](https://cdelord.fr/hey/ypp-aarch64-linux-musl.tar.xz)                              | `curl https://cdelord.fr/hey/ypp-aarch64-linux-musl.sh \| sh`                    |
-| [ditaa](https://cdelord.fr/hey/ditaa-aarch64-linux-musl.tar.xz)                          | `curl https://cdelord.fr/hey/ditaa-aarch64-linux-musl.sh \| sh`                  |
-| [pandoc](https://cdelord.fr/hey/pandoc-aarch64-linux-musl.tar.xz)                        | `curl https://cdelord.fr/hey/pandoc-aarch64-linux-musl.sh \| sh`                 |
-| [plantuml](https://cdelord.fr/hey/plantuml-aarch64-linux-musl.tar.xz)                    | `curl https://cdelord.fr/hey/plantuml-aarch64-linux-musl.sh \| sh`               |
-| [typst](https://cdelord.fr/hey/typst-aarch64-linux-musl.tar.xz)                          | `curl https://cdelord.fr/hey/typst-aarch64-linux-musl.sh \| sh`                  |
+| Package                                                                          | Command                                                                |
+|----------------------------------------------------------------------------------|------------------------------------------------------------------------|
+| [cdsoft](https://cdelord.fr/hey/cdsoft-aarch64-linux-musl.tar.xz) (all packages) | `curl https://cdelord.fr/hey/cdsoft-aarch64-linux-musl.sh \| sh`       |
+| [luax](https://cdelord.fr/hey/luax-aarch64-linux-musl.tar.xz)                    | `curl https://cdelord.fr/hey/luax-aarch64-linux-musl.sh \| sh`         |
+| [bang](https://cdelord.fr/hey/bang-aarch64-linux-musl.tar.xz)                    | `curl https://cdelord.fr/hey/bang-aarch64-linux-musl.sh \| sh`         |
+| [calculadoira](https://cdelord.fr/hey/calculadoira-aarch64-linux-musl.tar.xz)    | `curl https://cdelord.fr/hey/calculadoira-aarch64-linux-musl.sh \| sh` |
+| [lsvg](https://cdelord.fr/hey/lsvg-aarch64-linux-musl.tar.xz)                    | `curl https://cdelord.fr/hey/lsvg-aarch64-linux-musl.sh \| sh`         |
+| [panda](https://cdelord.fr/hey/panda-aarch64-linux-musl.tar.xz)                  | `curl https://cdelord.fr/hey/panda-aarch64-linux-musl.sh \| sh`        |
+| [tagref](https://cdelord.fr/hey/tagref-aarch64-linux-musl.tar.xz)                | `curl https://cdelord.fr/hey/tagref-aarch64-linux-musl.sh \| sh`       |
+| [ypp](https://cdelord.fr/hey/ypp-aarch64-linux-musl.tar.xz)                      | `curl https://cdelord.fr/hey/ypp-aarch64-linux-musl.sh \| sh`          |
+| [ditaa](https://cdelord.fr/hey/ditaa-aarch64-linux-musl.tar.xz)                  | `curl https://cdelord.fr/hey/ditaa-aarch64-linux-musl.sh \| sh`        |
+| [pandoc](https://cdelord.fr/hey/pandoc-aarch64-linux-musl.tar.xz)                | `curl https://cdelord.fr/hey/pandoc-aarch64-linux-musl.sh \| sh`       |
+| [plantuml](https://cdelord.fr/hey/plantuml-aarch64-linux-musl.tar.xz)            | `curl https://cdelord.fr/hey/plantuml-aarch64-linux-musl.sh \| sh`     |
+| [typst](https://cdelord.fr/hey/typst-aarch64-linux-musl.tar.xz)                  | `curl https://cdelord.fr/hey/typst-aarch64-linux-musl.sh \| sh`        |
 
 ### aarch64-linux-gnu
 
-| Package                                                                                  | Command                                                                          |
-| -------                                                                                  | -------                                                                          |
-| [cdsoft](https://cdelord.fr/hey/cdsoft-aarch64-linux-gnu.tar.xz) (all packages)          | `curl https://cdelord.fr/hey/cdsoft-aarch64-linux-gnu.sh \| sh`                  |
-| [luax](https://cdelord.fr/hey/luax-aarch64-linux-gnu.tar.xz)                             | `curl https://cdelord.fr/hey/luax-aarch64-linux-gnu.sh \| sh`                    |
-| [bang](https://cdelord.fr/hey/bang-aarch64-linux-gnu.tar.xz)                             | `curl https://cdelord.fr/hey/bang-aarch64-linux-gnu.sh \| sh`                    |
-| [calculadoira](https://cdelord.fr/hey/calculadoira-aarch64-linux-gnu.tar.xz)             | `curl https://cdelord.fr/hey/calculadoira-aarch64-linux-gnu.sh \| sh`            |
-| [lsvg](https://cdelord.fr/hey/lsvg-aarch64-linux-gnu.tar.xz)                             | `curl https://cdelord.fr/hey/lsvg-aarch64-linux-gnu.sh \| sh`                    |
-| [panda](https://cdelord.fr/hey/panda-aarch64-linux-gnu.tar.xz)                           | `curl https://cdelord.fr/hey/panda-aarch64-linux-gnu.sh \| sh`                   |
-| [tagref](https://cdelord.fr/hey/tagref-aarch64-linux-gnu.tar.xz)                         | `curl https://cdelord.fr/hey/tagref-aarch64-linux-gnu.sh \| sh`                  |
-| [ypp](https://cdelord.fr/hey/ypp-aarch64-linux-gnu.tar.xz)                               | `curl https://cdelord.fr/hey/ypp-aarch64-linux-gnu.sh \| sh`                     |
-| [ditaa](https://cdelord.fr/hey/ditaa-aarch64-linux-gnu.tar.xz)                           | `curl https://cdelord.fr/hey/ditaa-aarch64-linux-gnu.sh \| sh`                   |
-| [pandoc](https://cdelord.fr/hey/pandoc-aarch64-linux-gnu.tar.xz)                         | `curl https://cdelord.fr/hey/pandoc-aarch64-linux-gnu.sh \| sh`                  |
-| [plantuml](https://cdelord.fr/hey/plantuml-aarch64-linux-gnu.tar.xz)                     | `curl https://cdelord.fr/hey/plantuml-aarch64-linux-gnu.sh \| sh`                |
-| [typst](https://cdelord.fr/hey/typst-aarch64-linux-gnu.tar.xz)                           | `curl https://cdelord.fr/hey/typst-aarch64-linux-gnu.sh \| sh`                   |
+| Package                                                                         | Command                                                               |
+|---------------------------------------------------------------------------------|-----------------------------------------------------------------------|
+| [cdsoft](https://cdelord.fr/hey/cdsoft-aarch64-linux-gnu.tar.xz) (all packages) | `curl https://cdelord.fr/hey/cdsoft-aarch64-linux-gnu.sh \| sh`       |
+| [luax](https://cdelord.fr/hey/luax-aarch64-linux-gnu.tar.xz)                    | `curl https://cdelord.fr/hey/luax-aarch64-linux-gnu.sh \| sh`         |
+| [bang](https://cdelord.fr/hey/bang-aarch64-linux-gnu.tar.xz)                    | `curl https://cdelord.fr/hey/bang-aarch64-linux-gnu.sh \| sh`         |
+| [calculadoira](https://cdelord.fr/hey/calculadoira-aarch64-linux-gnu.tar.xz)    | `curl https://cdelord.fr/hey/calculadoira-aarch64-linux-gnu.sh \| sh` |
+| [lsvg](https://cdelord.fr/hey/lsvg-aarch64-linux-gnu.tar.xz)                    | `curl https://cdelord.fr/hey/lsvg-aarch64-linux-gnu.sh \| sh`         |
+| [panda](https://cdelord.fr/hey/panda-aarch64-linux-gnu.tar.xz)                  | `curl https://cdelord.fr/hey/panda-aarch64-linux-gnu.sh \| sh`        |
+| [tagref](https://cdelord.fr/hey/tagref-aarch64-linux-gnu.tar.xz)                | `curl https://cdelord.fr/hey/tagref-aarch64-linux-gnu.sh \| sh`       |
+| [ypp](https://cdelord.fr/hey/ypp-aarch64-linux-gnu.tar.xz)                      | `curl https://cdelord.fr/hey/ypp-aarch64-linux-gnu.sh \| sh`          |
+| [ditaa](https://cdelord.fr/hey/ditaa-aarch64-linux-gnu.tar.xz)                  | `curl https://cdelord.fr/hey/ditaa-aarch64-linux-gnu.sh \| sh`        |
+| [pandoc](https://cdelord.fr/hey/pandoc-aarch64-linux-gnu.tar.xz)                | `curl https://cdelord.fr/hey/pandoc-aarch64-linux-gnu.sh \| sh`       |
+| [plantuml](https://cdelord.fr/hey/plantuml-aarch64-linux-gnu.tar.xz)            | `curl https://cdelord.fr/hey/plantuml-aarch64-linux-gnu.sh \| sh`     |
+| [typst](https://cdelord.fr/hey/typst-aarch64-linux-gnu.tar.xz)                  | `curl https://cdelord.fr/hey/typst-aarch64-linux-gnu.sh \| sh`        |
 
 ### x86_64-macos-none
 
-| Package                                                                                  | Command                                                                          |
-| -------                                                                                  | -------                                                                          |
-| [cdsoft](https://cdelord.fr/hey/cdsoft-x86_64-macos-none.tar.xz) (all packages)          | `curl https://cdelord.fr/hey/cdsoft-x86_64-macos-none.sh \| sh`                  |
-| [luax](https://cdelord.fr/hey/luax-x86_64-macos-none.tar.xz)                             | `curl https://cdelord.fr/hey/luax-x86_64-macos-none.sh \| sh`                    |
-| [bang](https://cdelord.fr/hey/bang-x86_64-macos-none.tar.xz)                             | `curl https://cdelord.fr/hey/bang-x86_64-macos-none.sh \| sh`                    |
-| [calculadoira](https://cdelord.fr/hey/calculadoira-x86_64-macos-none.tar.xz)             | `curl https://cdelord.fr/hey/calculadoira-x86_64-macos-none.sh \| sh`            |
-| [lsvg](https://cdelord.fr/hey/lsvg-x86_64-macos-none.tar.xz)                             | `curl https://cdelord.fr/hey/lsvg-x86_64-macos-none.sh \| sh`                    |
-| [panda](https://cdelord.fr/hey/panda-x86_64-macos-none.tar.xz)                           | `curl https://cdelord.fr/hey/panda-x86_64-macos-none.sh \| sh`                   |
-| [tagref](https://cdelord.fr/hey/tagref-x86_64-macos-none.tar.xz)                         | `curl https://cdelord.fr/hey/tagref-x86_64-macos-none.sh \| sh`                  |
-| [ypp](https://cdelord.fr/hey/ypp-x86_64-macos-none.tar.xz)                               | `curl https://cdelord.fr/hey/ypp-x86_64-macos-none.sh \| sh`                     |
-| [ditaa](https://cdelord.fr/hey/ditaa-x86_64-macos-none.tar.xz)                           | `curl https://cdelord.fr/hey/ditaa-x86_64-macos-none.sh \| sh`                   |
-| [pandoc](https://cdelord.fr/hey/pandoc-x86_64-macos-none.tar.xz)                         | `curl https://cdelord.fr/hey/pandoc-x86_64-macos-none.sh \| sh`                  |
-| [plantuml](https://cdelord.fr/hey/plantuml-x86_64-macos-none.tar.xz)                     | `curl https://cdelord.fr/hey/plantuml-x86_64-macos-none.sh \| sh`                |
-| [typst](https://cdelord.fr/hey/typst-x86_64-macos-none.tar.xz)                           | `curl https://cdelord.fr/hey/typst-x86_64-macos-none.sh \| sh`                   |
+| Package                                                                         | Command                                                               |
+|---------------------------------------------------------------------------------|-----------------------------------------------------------------------|
+| [cdsoft](https://cdelord.fr/hey/cdsoft-x86_64-macos-none.tar.xz) (all packages) | `curl https://cdelord.fr/hey/cdsoft-x86_64-macos-none.sh \| sh`       |
+| [luax](https://cdelord.fr/hey/luax-x86_64-macos-none.tar.xz)                    | `curl https://cdelord.fr/hey/luax-x86_64-macos-none.sh \| sh`         |
+| [bang](https://cdelord.fr/hey/bang-x86_64-macos-none.tar.xz)                    | `curl https://cdelord.fr/hey/bang-x86_64-macos-none.sh \| sh`         |
+| [calculadoira](https://cdelord.fr/hey/calculadoira-x86_64-macos-none.tar.xz)    | `curl https://cdelord.fr/hey/calculadoira-x86_64-macos-none.sh \| sh` |
+| [lsvg](https://cdelord.fr/hey/lsvg-x86_64-macos-none.tar.xz)                    | `curl https://cdelord.fr/hey/lsvg-x86_64-macos-none.sh \| sh`         |
+| [panda](https://cdelord.fr/hey/panda-x86_64-macos-none.tar.xz)                  | `curl https://cdelord.fr/hey/panda-x86_64-macos-none.sh \| sh`        |
+| [tagref](https://cdelord.fr/hey/tagref-x86_64-macos-none.tar.xz)                | `curl https://cdelord.fr/hey/tagref-x86_64-macos-none.sh \| sh`       |
+| [ypp](https://cdelord.fr/hey/ypp-x86_64-macos-none.tar.xz)                      | `curl https://cdelord.fr/hey/ypp-x86_64-macos-none.sh \| sh`          |
+| [ditaa](https://cdelord.fr/hey/ditaa-x86_64-macos-none.tar.xz)                  | `curl https://cdelord.fr/hey/ditaa-x86_64-macos-none.sh \| sh`        |
+| [pandoc](https://cdelord.fr/hey/pandoc-x86_64-macos-none.tar.xz)                | `curl https://cdelord.fr/hey/pandoc-x86_64-macos-none.sh \| sh`       |
+| [plantuml](https://cdelord.fr/hey/plantuml-x86_64-macos-none.tar.xz)            | `curl https://cdelord.fr/hey/plantuml-x86_64-macos-none.sh \| sh`     |
+| [typst](https://cdelord.fr/hey/typst-x86_64-macos-none.tar.xz)                  | `curl https://cdelord.fr/hey/typst-x86_64-macos-none.sh \| sh`        |
 
 ### aarch64-macos-none
 
-| Package                                                                                  | Command                                                                          |
-| -------                                                                                  | -------                                                                          |
-| [cdsoft](https://cdelord.fr/hey/cdsoft-aarch64-macos-none.tar.xz) (all packages)         | `curl https://cdelord.fr/hey/cdsoft-aarch64-macos-none.sh \| sh`                 |
-| [luax](https://cdelord.fr/hey/luax-aarch64-macos-none.tar.xz)                            | `curl https://cdelord.fr/hey/luax-aarch64-macos-none.sh \| sh`                   |
-| [bang](https://cdelord.fr/hey/bang-aarch64-macos-none.tar.xz)                            | `curl https://cdelord.fr/hey/bang-aarch64-macos-none.sh \| sh`                   |
-| [calculadoira](https://cdelord.fr/hey/calculadoira-aarch64-macos-none.tar.xz)            | `curl https://cdelord.fr/hey/calculadoira-aarch64-macos-none.sh \| sh`           |
-| [lsvg](https://cdelord.fr/hey/lsvg-aarch64-macos-none.tar.xz)                            | `curl https://cdelord.fr/hey/lsvg-aarch64-macos-none.sh \| sh`                   |
-| [panda](https://cdelord.fr/hey/panda-aarch64-macos-none.tar.xz)                          | `curl https://cdelord.fr/hey/panda-aarch64-macos-none.sh \| sh`                  |
-| [tagref](https://cdelord.fr/hey/tagref-aarch64-macos-none.tar.xz)                        | `curl https://cdelord.fr/hey/tagref-aarch64-macos-none.sh \| sh`                 |
-| [ypp](https://cdelord.fr/hey/ypp-aarch64-macos-none.tar.xz)                              | `curl https://cdelord.fr/hey/ypp-aarch64-macos-none.sh \| sh`                    |
-| [ditaa](https://cdelord.fr/hey/ditaa-aarch64-macos-none.tar.xz)                          | `curl https://cdelord.fr/hey/ditaa-aarch64-macos-none.sh \| sh`                  |
-| [pandoc](https://cdelord.fr/hey/pandoc-aarch64-macos-none.tar.xz)                        | `curl https://cdelord.fr/hey/pandoc-aarch64-macos-none.sh \| sh`                 |
-| [plantuml](https://cdelord.fr/hey/plantuml-aarch64-macos-none.tar.xz)                    | `curl https://cdelord.fr/hey/plantuml-aarch64-macos-none.sh \| sh`               |
-| [typst](https://cdelord.fr/hey/typst-aarch64-macos-none.tar.xz)                          | `curl https://cdelord.fr/hey/typst-aarch64-macos-none.sh \| sh`                  |
+| Package                                                                          | Command                                                                |
+|----------------------------------------------------------------------------------|------------------------------------------------------------------------|
+| [cdsoft](https://cdelord.fr/hey/cdsoft-aarch64-macos-none.tar.xz) (all packages) | `curl https://cdelord.fr/hey/cdsoft-aarch64-macos-none.sh \| sh`       |
+| [luax](https://cdelord.fr/hey/luax-aarch64-macos-none.tar.xz)                    | `curl https://cdelord.fr/hey/luax-aarch64-macos-none.sh \| sh`         |
+| [bang](https://cdelord.fr/hey/bang-aarch64-macos-none.tar.xz)                    | `curl https://cdelord.fr/hey/bang-aarch64-macos-none.sh \| sh`         |
+| [calculadoira](https://cdelord.fr/hey/calculadoira-aarch64-macos-none.tar.xz)    | `curl https://cdelord.fr/hey/calculadoira-aarch64-macos-none.sh \| sh` |
+| [lsvg](https://cdelord.fr/hey/lsvg-aarch64-macos-none.tar.xz)                    | `curl https://cdelord.fr/hey/lsvg-aarch64-macos-none.sh \| sh`         |
+| [panda](https://cdelord.fr/hey/panda-aarch64-macos-none.tar.xz)                  | `curl https://cdelord.fr/hey/panda-aarch64-macos-none.sh \| sh`        |
+| [tagref](https://cdelord.fr/hey/tagref-aarch64-macos-none.tar.xz)                | `curl https://cdelord.fr/hey/tagref-aarch64-macos-none.sh \| sh`       |
+| [ypp](https://cdelord.fr/hey/ypp-aarch64-macos-none.tar.xz)                      | `curl https://cdelord.fr/hey/ypp-aarch64-macos-none.sh \| sh`          |
+| [ditaa](https://cdelord.fr/hey/ditaa-aarch64-macos-none.tar.xz)                  | `curl https://cdelord.fr/hey/ditaa-aarch64-macos-none.sh \| sh`        |
+| [pandoc](https://cdelord.fr/hey/pandoc-aarch64-macos-none.tar.xz)                | `curl https://cdelord.fr/hey/pandoc-aarch64-macos-none.sh \| sh`       |
+| [plantuml](https://cdelord.fr/hey/plantuml-aarch64-macos-none.tar.xz)            | `curl https://cdelord.fr/hey/plantuml-aarch64-macos-none.sh \| sh`     |
+| [typst](https://cdelord.fr/hey/typst-aarch64-macos-none.tar.xz)                  | `curl https://cdelord.fr/hey/typst-aarch64-macos-none.sh \| sh`        |
 
 ### x86_64-windows-gnu
 
-| Package                                                                                  | Command                                                                          |
-| -------                                                                                  | -------                                                                          |
-| [cdsoft](https://cdelord.fr/hey/cdsoft-x86_64-windows-gnu.tar.xz) (all packages)         | `curl https://cdelord.fr/hey/cdsoft-x86_64-windows-gnu.sh \| sh`                 |
-| [luax](https://cdelord.fr/hey/luax-x86_64-windows-gnu.tar.xz)                            | `curl https://cdelord.fr/hey/luax-x86_64-windows-gnu.sh \| sh`                   |
-| [bang](https://cdelord.fr/hey/bang-x86_64-windows-gnu.tar.xz)                            | `curl https://cdelord.fr/hey/bang-x86_64-windows-gnu.sh \| sh`                   |
-| [calculadoira](https://cdelord.fr/hey/calculadoira-x86_64-windows-gnu.tar.xz)            | `curl https://cdelord.fr/hey/calculadoira-x86_64-windows-gnu.sh \| sh`           |
-| [lsvg](https://cdelord.fr/hey/lsvg-x86_64-windows-gnu.tar.xz)                            | `curl https://cdelord.fr/hey/lsvg-x86_64-windows-gnu.sh \| sh`                   |
-| [panda](https://cdelord.fr/hey/panda-x86_64-windows-gnu.tar.xz)                          | `curl https://cdelord.fr/hey/panda-x86_64-windows-gnu.sh \| sh`                  |
-| [tagref](https://cdelord.fr/hey/tagref-x86_64-windows-gnu.tar.xz)                        | `curl https://cdelord.fr/hey/tagref-x86_64-windows-gnu.sh \| sh`                 |
-| [ypp](https://cdelord.fr/hey/ypp-x86_64-windows-gnu.tar.xz)                              | `curl https://cdelord.fr/hey/ypp-x86_64-windows-gnu.sh \| sh`                    |
-| [ditaa](https://cdelord.fr/hey/ditaa-x86_64-windows-gnu.tar.xz)                          | `curl https://cdelord.fr/hey/ditaa-x86_64-windows-gnu.sh \| sh`                  |
-| [pandoc](https://cdelord.fr/hey/pandoc-x86_64-windows-gnu.tar.xz)                        | `curl https://cdelord.fr/hey/pandoc-x86_64-windows-gnu.sh \| sh`                 |
-| [plantuml](https://cdelord.fr/hey/plantuml-x86_64-windows-gnu.tar.xz)                    | `curl https://cdelord.fr/hey/plantuml-x86_64-windows-gnu.sh \| sh`               |
-| [typst](https://cdelord.fr/hey/typst-x86_64-windows-gnu.tar.xz)                          | `curl https://cdelord.fr/hey/typst-x86_64-windows-gnu.sh \| sh`                  |
+| Package                                                                       | Zip file                                                                                          |
+|-------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
+| [cdsoft](https://cdelord.fr/hey/cdsoft-x86_64-windows-gnu.zip) (all packages) | [cdsoft-x86_64-windows-gnu.zip](https://cdelord.fr/hey/cdsoft-x86_64-windows-gnu.zip)             |
+| [luax](https://cdelord.fr/hey/luax-x86_64-windows-gnu.zip)                    | [luax-x86_64-windows-gnu.zip](https://cdelord.fr/hey/luax-x86_64-windows-gnu.zip)                 |
+| [bang](https://cdelord.fr/hey/bang-x86_64-windows-gnu.zip)                    | [bang-x86_64-windows-gnu.zip](https://cdelord.fr/hey/bang-x86_64-windows-gnu.zip)                 |
+| [calculadoira](https://cdelord.fr/hey/calculadoira-x86_64-windows-gnu.zip)    | [calculadoira-x86_64-windows-gnu.zip](https://cdelord.fr/hey/calculadoira-x86_64-windows-gnu.zip) |
+| [lsvg](https://cdelord.fr/hey/lsvg-x86_64-windows-gnu.zip)                    | [lsvg-x86_64-windows-gnu.zip](https://cdelord.fr/hey/lsvg-x86_64-windows-gnu.zip)                 |
+| [panda](https://cdelord.fr/hey/panda-x86_64-windows-gnu.zip)                  | [panda-x86_64-windows-gnu.zip](https://cdelord.fr/hey/panda-x86_64-windows-gnu.zip)               |
+| [tagref](https://cdelord.fr/hey/tagref-x86_64-windows-gnu.zip)                | [tagref-x86_64-windows-gnu.zip](https://cdelord.fr/hey/tagref-x86_64-windows-gnu.zip)             |
+| [ypp](https://cdelord.fr/hey/ypp-x86_64-windows-gnu.zip)                      | [ypp-x86_64-windows-gnu.zip](https://cdelord.fr/hey/ypp-x86_64-windows-gnu.zip)                   |
+| [ditaa](https://cdelord.fr/hey/ditaa-x86_64-windows-gnu.zip)                  | [ditaa-x86_64-windows-gnu.zip](https://cdelord.fr/hey/ditaa-x86_64-windows-gnu.zip)               |
+| [pandoc](https://cdelord.fr/hey/pandoc-x86_64-windows-gnu.zip)                | [pandoc-x86_64-windows-gnu.zip](https://cdelord.fr/hey/pandoc-x86_64-windows-gnu.zip)             |
+| [plantuml](https://cdelord.fr/hey/plantuml-x86_64-windows-gnu.zip)            | [plantuml-x86_64-windows-gnu.zip](https://cdelord.fr/hey/plantuml-x86_64-windows-gnu.zip)         |
+| [typst](https://cdelord.fr/hey/typst-x86_64-windows-gnu.zip)                  | [typst-x86_64-windows-gnu.zip](https://cdelord.fr/hey/typst-x86_64-windows-gnu.zip)               |
 
 # License
 

@@ -25,7 +25,7 @@ then
     exit 1
 fi
 
-INDEX="$OUT/hey.index"
+INDEX="$OUT/hey-table.md"
 rm -f "$INDEX"
 
 build-target()
@@ -35,8 +35,11 @@ build-target()
     {
         echo "### $TARGET"
         echo ""
-        printf "| %-88s | %-80s |\n" "Package" "Command"
-        printf "| %-88s | %-80s |\n" "-------" "-------"
+        case "$TARGET" in
+            *windows*)  echo "| Package | Zip file |" ;;
+            *)          echo "| Package | Command |" ;;
+        esac
+                        echo "| ------- | ------- |"
     } >> "$INDEX"
 
     build "$TARGET" all
@@ -75,40 +78,55 @@ build()
     ARCHIVE_NAME="$(basename "$ARCHIVE")"
     SCRIPT_NAME="$(basename "$SCRIPT")"
 
+    local ARCHIVE_ZIP="$OUT/$SOFT_NAME-$TARGET.zip"
+    local ARCHIVE_ZIP_NAME
+    ARCHIVE_ZIP_NAME="$(basename "$ARCHIVE_ZIP")"
+
     rm -rf "$TMP"
     mkdir -p "$TMP/$SOFT_NAME/$TARGET"
     ./hey -p "$TMP/$SOFT_NAME/$TARGET" -t "$TARGET" install "$SOFT" "$@"
     (   cd "$TMP" && \
-        XZ_OPT=-6 tar -cJf "$ARCHIVE" --transform="s|^./||" .
+        case "$TARGET" in
+            *windows*)  rm -f "$ARCHIVE_ZIP"; zip -q -6 -r "$ARCHIVE_ZIP" . ;;
+            *)          XZ_OPT=-6 tar -cJf "$ARCHIVE" --transform="s|^./||" . ;;
+        esac
         rm -rf "$TMP"
     ) &
 
     local URL="https://cdelord.fr/hey"
 
-    cat <<EOF > "$SCRIPT"
+    case "$TARGET" in
+        *windows*)
+            echo "| [$SOFT_NAME]($URL/$ARCHIVE_ZIP_NAME) $DESCR | [$ARCHIVE_ZIP_NAME]($URL/$ARCHIVE_ZIP_NAME) |" >> "$INDEX"
+            ;;
+        *)
+            echo "| [$SOFT_NAME]($URL/$ARCHIVE_NAME) $DESCR | \`curl $URL/$SCRIPT_NAME \\| sh\`" >> "$INDEX"
+            cat <<EOF > "$SCRIPT"
 #!/usr/bin/env sh
 
-set -e
+SOFT_NAME="$SOFT_NAME"
+ARCHIVE_NAME="$ARCHIVE_NAME"
+ARCHIVE_URL="$URL/\$ARCHIVE_NAME"
 
-ARCHIVE_URL="$URL/$ARCHIVE_NAME"
+set -e
 
 [ -z "\$PREFIX" ] && PREFIX=~/.local
 if ! [ -d \$PREFIX ]
 then
-    printf "%s: not a directory" "\$PREFIX"
+    echo "\$PREFIX: not a directory"
     exit 1
 fi
 
 tmp="\$(mktemp --directory --tmpdir hey.XXXXXX)"
-archive="\$tmp/$ARCHIVE_NAME"
+archive="\$tmp/\$ARCHIVE_NAME"
 trap 'rm -rf "\$tmp"' EXIT
-printf "Download %s\n" "\$ARCHIVE_URL"
+echo "Download \$ARCHIVE_URL"
 curl --fail --output "\$archive" "\$ARCHIVE_URL"
-printf "Install %s in %s\n" "$SOFT_NAME" "\$PREFIX"
+echo "Install \$SOFT_NAME in \$PREFIX"
 tar xJvf "\$archive" --strip-components=2 -C "\$PREFIX"
 EOF
-
-    printf "| %-88s | %-80s |\n" "[$SOFT_NAME]($URL/$ARCHIVE_NAME) $DESCR" "\`curl $URL/$SCRIPT_NAME \\| sh\`" >> "$INDEX"
+            ;;
+    esac
 }
 
 cp hey "$OUT/hey"
@@ -123,6 +141,8 @@ build-target x86_64-macos-none
 build-target aarch64-macos-none
 
 build-target x86_64-windows-gnu
+
+pandoc -t gfm "$INDEX" -o "$INDEX"
 
 figlet "Finalizing..."
 wait
