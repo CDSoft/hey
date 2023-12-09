@@ -32,7 +32,7 @@ cat <<EOF > "$INDEX"
 @@[[
 function size(name)
     local s = fs.stat(name).size
-    if s >= 1024*1024 then return ("%d MB"):format(s//(1024*1024)) end
+    if s >= 1024*1024 then return ("**%d MB**"):format(s//(1024*1024)) end
     return ("%d KB"):format(s//(1024))
 end
 ]]
@@ -104,6 +104,7 @@ build()
     ) &
 
     local LOCAL_URL="hey"
+    local URL="https://cdelord.fr/$LOCAL_URL"
 
     case "$TARGET" in
         *windows*)
