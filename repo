@@ -21,25 +21,35 @@
 OUT=$1
 if ! [ -d "$OUT" ]
 then
-    echo "usage: repo.sh <output directory>"
+    echo "usage: repo <output directory>"
     exit 1
 fi
 
-INDEX="$OUT/hey-table.md"
-rm -f "$INDEX"
+INDEX="$OUT/binaries.md"
+cat <<EOF > "$INDEX"
+# CDSoft binaries
+
+@@[[
+function size(name)
+    local s = fs.stat(name).size
+    if s >= 1024*1024 then return ("%d MB"):format(s//(1024*1024)) end
+    return ("%d KB"):format(s//(1024))
+end
+]]
+EOF
 
 build-target()
 {
     local TARGET="$1"
 
     {
-        echo "### $TARGET"
+        echo "## $TARGET"
         echo ""
         case "$TARGET" in
-            *windows*)  echo "| Package | Zip file |" ;;
-            *)          echo "| Package | Command |" ;;
+            *windows*)  echo "| Package | Zip file | Size |" ;;
+            *)          echo "| Package | Command  | Size |" ;;
         esac
-                        echo "| ------- | ------- |"
+                        echo "| :------ | :------- | ---: |"
     } >> "$INDEX"
 
     build "$TARGET" all
@@ -72,7 +82,7 @@ build()
 
     local TMP="$OUT/$TARGET-$SOFT_NAME"
     local ARCHIVE="$OUT/$SOFT_NAME-$TARGET.tar.xz"
-    local SCRIPT="$OUT/$SOFT_NAME-$TARGET.sh"
+    local SCRIPT="$OUT/$SOFT_NAME-$TARGET"
     local ARCHIVE_NAME
     local SCRIPT_NAME
     ARCHIVE_NAME="$(basename "$ARCHIVE")"
@@ -93,14 +103,14 @@ build()
         rm -rf "$TMP"
     ) &
 
-    local URL="https://cdelord.fr/hey"
+    local LOCAL_URL="hey"
 
     case "$TARGET" in
         *windows*)
-            echo "| [$SOFT_NAME]($URL/$ARCHIVE_ZIP_NAME) $DESCR | [$ARCHIVE_ZIP_NAME]($URL/$ARCHIVE_ZIP_NAME) |" >> "$INDEX"
+            echo "| [$SOFT_NAME]($LOCAL_URL/$ARCHIVE_ZIP_NAME) $DESCR | [$ARCHIVE_ZIP_NAME]($LOCAL_URL/$ARCHIVE_ZIP_NAME) | @size'$ARCHIVE_ZIP' |" >> "$INDEX"
             ;;
         *)
-            echo "| [$SOFT_NAME]($URL/$ARCHIVE_NAME) $DESCR | \`curl $URL/$SCRIPT_NAME \\| sh\`" >> "$INDEX"
+            echo "| [$SOFT_NAME]($LOCAL_URL/$ARCHIVE_NAME) $DESCR | \`curl $URL/$SCRIPT_NAME | sh\` | @size'$ARCHIVE' |" >> "$INDEX"
             cat <<EOF > "$SCRIPT"
 #!/usr/bin/env sh
 
@@ -142,7 +152,7 @@ build-target aarch64-macos-none
 
 build-target x86_64-windows-gnu
 
-pandoc -t gfm "$INDEX" -o "$INDEX"
-
 figlet "Finalizing..."
 wait
+
+ypp "$INDEX" -o "$INDEX"
