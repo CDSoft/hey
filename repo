@@ -36,6 +36,11 @@ function size(name)
     return ("%d KB"):format(s//(1024))
 end
 ]]
+
+@@ os.setlocale "C"
+
+Last update: @os.date "%D"
+
 EOF
 
 build-target()
