@@ -264,7 +264,7 @@ install-lsvg()
     gitclone https://github.com/CDSoft/lsvg
     ninja clean -C $REPOS/lsvg
     PREFIX=$PREFIX ninja install -C $REPOS/lsvg
-    luax-target lsvg "$(ls $REPOS/lsvg/src/*.lua)"
+    luax-target lsvg "$(ls $REPOS/lsvg/src/*.lua)" "$REPOS/lsvg/.build/version"
 }
 
 compile-luax()
