@@ -113,7 +113,7 @@ There is a download helper for each supported platform and package:
 $ curl -sSL http://cdelord.fr/hey/$SOFT-$TARGET | sh
 ```
 
-The installation path can be changed with the environment variable `PATH`.
+The installation path can be changed with the environment variable `PREFIX`.
 The default installation path is `~/.local`.
 
 #### Example
