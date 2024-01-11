@@ -141,7 +141,7 @@ gitclone()
     mkdir -p $REPOS
     if [ -d "$REPOS/$dir" ]
     then
-        ( cd "$REPOS/$dir" && git fetch && git rebase )
+        ( cd "$REPOS/$dir" && git fetch origin && git reset --hard origin/master && git rebase )
     else
         git clone "$url" "$REPOS/$dir"
     fi
@@ -153,11 +153,11 @@ target()
         ("")    [ -x $REPOS/luax/.build/bin/luax ] || compile-luax
                 $REPOS/luax/.build/bin/luax -e 'print(sys.os.."-"..sys.arch)'
                 ;;
-        (x86_64-linux-*)    echo "linux-x86_64" ;;
-        (aarch64-linux-*)   echo "linux-aarch64" ;;
-        (x86_64-windows-*)  echo "windows-x86_64" ;;
-        (x86_64-macos-*)    echo "macos-x86_64" ;;
-        (aarch64-macos-*)   echo "macos-aarch64" ;;
+        (linux-x86_64*)    echo "linux-x86_64" ;;
+        (linux-aarch64*)   echo "linux-aarch64" ;;
+        (windows-x86_64*)  echo "windows-x86_64" ;;
+        (x86_64-macos*)    echo "macos-x86_64" ;;
+        (macos-aarch64*)   echo "macos-aarch64" ;;
         (*)     echo "$TARGET" # the caller shall report an error
                 ;;
     esac
@@ -217,7 +217,7 @@ luax-target()
     then
         rm -v "$PREFIX/bin/$EXE"
         # shellcheck disable=SC2068
-        $REPOS/luax/.build/bin/luax -q -t "$TARGET" -o "$PREFIX/bin/$EXE" ${SOURCES[@]}
+        $REPOS/luax/.build/bin/luax -t "$TARGET" -o "$PREFIX/bin/$EXE" ${SOURCES[@]}
     fi
 }
 
@@ -229,7 +229,7 @@ install-bang()
     gitclone https://github.com/CDSoft/bang
     ninja clean -C $REPOS/bang
     PREFIX=$PREFIX ninja install -C $REPOS/bang
-    luax-target bang "$(ls $REPOS/bang/{src,lib}/*.lua)" "$REPOS/bang/.build/version"
+    #luax-target bang "$(ls $REPOS/bang/{src,lib}/*.lua)" "$REPOS/bang/.build/version"
 }
 
 install-calculadoira()
@@ -240,7 +240,7 @@ install-calculadoira()
     gitclone https://github.com/CDSoft/calculadoira
     ninja clean -C $REPOS/calculadoira
     PREFIX=$PREFIX ninja install -C $REPOS/calculadoira
-    luax-target calculadoira "$(ls $REPOS/calculadoira/src/*)"
+    #luax-target calculadoira "$(ls $REPOS/calculadoira/src/*)"
 }
 
 install-ditaa()
@@ -264,7 +264,7 @@ install-lsvg()
     gitclone https://github.com/CDSoft/lsvg
     ninja clean -C $REPOS/lsvg
     PREFIX=$PREFIX ninja install -C $REPOS/lsvg
-    luax-target lsvg "$(ls $REPOS/lsvg/src/*.lua)" "$REPOS/lsvg/.build/version"
+    #luax-target lsvg "$(ls $REPOS/lsvg/src/*.lua)" "$REPOS/lsvg/.build/version"
 }
 
 compile-luax()
@@ -272,6 +272,7 @@ compile-luax()
     once compile-luax || return
     title "LuaX compilation"
     gitclone https://github.com/CDSoft/luax
+    ( cd $REPOS/luax && tools/bang )
     ninja compile -C $REPOS/luax
     eval "$($REPOS/luax/.build/bin/luax env)"
 }
@@ -281,15 +282,8 @@ install-luax()
     compile-luax
     once luax || return
     title LuaX
+    ( cd $REPOS/luax && tools/bang -- "$TARGET" )
     PREFIX=$PREFIX ninja install -C $REPOS/luax
-    if [ -n "$TARGET" ]
-    then
-        rm -v $PREFIX/bin/luax
-        case "$TARGET" in
-            (*-windows-*) cp -av "$REPOS/luax/.build/bin/luax-$TARGET.exe" $PREFIX/bin/luax.exe ;;
-            (*)           cp -av "$REPOS/luax/.build/bin/luax-$TARGET"     $PREFIX/bin/luax     ;;
-        esac
-    fi
 }
 
 install-panda()
@@ -385,7 +379,7 @@ install-tagref()
     gitclone https://github.com/CDSoft/tagref
     ninja clean -C $REPOS/tagref
     PREFIX=$PREFIX ninja install -C $REPOS/tagref
-    luax-target tagref "$(ls $REPOS/tagref/src/*.lua)"
+    #luax-target tagref "$(ls $REPOS/tagref/src/*.lua)"
 }
 
 install-typst()
@@ -438,7 +432,7 @@ install-ypp()
     gitclone https://github.com/CDSoft/ypp
     ninja clean -C $REPOS/ypp
     PREFIX=$PREFIX ninja install -C $REPOS/ypp
-    luax-target ypp "$(ls $REPOS/ypp/src/*.lua)" "$(ls $REPOS/ypp/.build/src/*.lua)"
+    #luax-target ypp "$(ls $REPOS/ypp/src/*.lua)" "$(ls $REPOS/ypp/.build/src/*.lua)"
 }
 
 main()

@@ -59,12 +59,12 @@ build-target()
 
     build "$TARGET" all
     build "$TARGET" luax
-    build "$TARGET" bang
-    build "$TARGET" calculadoira
-    build "$TARGET" lsvg
+    build "$TARGET" bang luax
+    build "$TARGET" calculadoira luax
+    build "$TARGET" lsvg luax
     build "$TARGET" panda pandoc-latex-template pandoc-panam-css
-    build "$TARGET" tagref
-    build "$TARGET" ypp
+    build "$TARGET" tagref luax
+    build "$TARGET" ypp luax
     build "$TARGET" ditaa
     build "$TARGET" pandoc pandoc-latex-template pandoc-panam-css
     build "$TARGET" plantuml
@@ -147,16 +147,16 @@ EOF
 
 cp hey "$OUT/hey"
 
-build-target x86_64-linux-musl
-build-target x86_64-linux-gnu
+build-target linux-x86_64
+build-target linux-x86_64-musl
 
-build-target aarch64-linux-musl
-build-target aarch64-linux-gnu
+build-target linux-aarch64
+build-target linux-aarch64-musl
 
-build-target x86_64-macos-none
-build-target aarch64-macos-none
+build-target macos-x86_64
+build-target macos-aarch64
 
-build-target x86_64-windows-gnu
+build-target windows-x86_64
 
 figlet "Finalizing..."
 wait

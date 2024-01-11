@@ -122,8 +122,8 @@ E.g. to install LuaX and Bang on Linux with musl in `path/to/my/softs`:
 
 ```
 $ PREFIX=path/to/my/softs
-$ curl -sSL http://cdelord.fr/hey/luax-x86_64-linux-musl | sh
-$ curl -sSL http://cdelord.fr/hey/bang-x86_64-linux-musl | sh
+$ curl -sSL http://cdelord.fr/hey/luax-linux-x86_64-musl | sh
+$ curl -sSL http://cdelord.fr/hey/bang-linux-x86_64-musl | sh
 ```
 
 ### Windows
