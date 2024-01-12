@@ -91,6 +91,7 @@ check-prerequisites()
     check   unzip       zip             zip             true
     check   ninja       ninja-build     ninja-build     true
     check   lz4         lz4             lz4             true
+    check   lua         lua             lua             true
 }
 
 check()
@@ -282,7 +283,8 @@ install-luax()
     compile-luax
     once luax || return
     title LuaX
-    ( cd $REPOS/luax && tools/bang -- "$TARGET" )
+    # shellcheck disable=SC2086
+    ( cd $REPOS/luax && tools/bang -- $TARGET )
     PREFIX=$PREFIX ninja install -C $REPOS/luax
 }
 
