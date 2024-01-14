@@ -32,8 +32,8 @@ cat <<EOF > "$INDEX"
 @@[[
 function size(name)
     local s = fs.stat(name).size
-    if s >= 1024*1024 then return ("**%d MB**"):format(s//(1024*1024)) end
-    return ("%d KB"):format(s//(1024))
+    if s >= 1024*1024 then return ("**%d&nbsp;MB**"):format(s//(1024*1024)) end
+    return ("%d&nbsp;KB"):format(s//(1024))
 end
 ]]
 
@@ -51,10 +51,10 @@ build-target()
         echo "## $TARGET"
         echo ""
         case "$TARGET" in
-            *windows*)  echo "| Package | Zip file | Size |" ;;
-            *)          echo "| Package | Command  | Size |" ;;
+            *windows*)  echo "| Package    | Zip file                  | Size |" ;;
+            *)          echo "| Package    | Command                   | Size |" ;;
         esac
-                        echo "| :------ | :------- | ---: |"
+                        echo "| :--------- | :------------------------ | ---: |"
     } >> "$INDEX"
 
     build "$TARGET" all
