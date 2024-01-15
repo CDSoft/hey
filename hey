@@ -77,7 +77,16 @@ EOF
 
 cmd-clean()
 {
-    rm -rf "$CACHE"
+    if [ -z "$1" ]
+    then
+        rm -rf "$CACHE"
+    else
+        while [ -n "$1" ]
+        do
+            rm -rf "${REPOS:?}/$1"
+            shift
+        done
+    fi
 }
 
 check-prerequisites()
@@ -274,6 +283,7 @@ compile-luax()
     title "LuaX compilation"
     gitclone https://github.com/CDSoft/luax
     ( cd $REPOS/luax && tools/bang )
+    #ninja clean -C $REPOS/luax
     ninja compile -C $REPOS/luax
     eval "$($REPOS/luax/.build/bin/luax env)"
 }
@@ -285,6 +295,7 @@ install-luax()
     title LuaX
     # shellcheck disable=SC2086
     ( cd $REPOS/luax && tools/bang -- $TARGET )
+    #ninja clean -C $REPOS/luax
     PREFIX=$PREFIX ninja install -C $REPOS/luax
 }
 
@@ -459,7 +470,7 @@ main()
     case "$cmd" in
         (""|help) cmd-help ;;
         (list)    cmd-list ;;
-        (clean)   cmd-clean ;;
+        (clean)   cmd-clean "${args[@]}" ;;
         (install) echo "Installation prefix: $PREFIX"
                   check-prerequisites
                   cmd-install "${args[@]}"

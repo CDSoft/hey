@@ -147,6 +147,8 @@ EOF
 
 cp hey "$OUT/hey"
 
+./hey clean luax
+
 build-target linux-x86_64
 build-target linux-x86_64-musl
 
