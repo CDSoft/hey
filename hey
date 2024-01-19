@@ -166,7 +166,7 @@ target()
         (linux-x86_64*)    echo "linux-x86_64" ;;
         (linux-aarch64*)   echo "linux-aarch64" ;;
         (windows-x86_64*)  echo "windows-x86_64" ;;
-        (x86_64-macos*)    echo "macos-x86_64" ;;
+        (macos-x86_64*)    echo "macos-x86_64" ;;
         (macos-aarch64*)   echo "macos-aarch64" ;;
         (*)     echo "$TARGET" # the caller shall report an error
                 ;;
