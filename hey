@@ -218,19 +218,6 @@ install-all()
     )
 }
 
-luax-target()
-{
-    local EXE="$1"
-    shift
-    local SOURCES="$*"
-    if [ -n "$TARGET" ]
-    then
-        rm -v "$PREFIX/bin/$EXE"
-        # shellcheck disable=SC2068
-        $REPOS/luax/.build/bin/luax -t "$TARGET" -o "$PREFIX/bin/$EXE" ${SOURCES[@]}
-    fi
-}
-
 install-bang()
 {
     once bang || return
@@ -239,7 +226,6 @@ install-bang()
     gitclone https://github.com/CDSoft/bang
     ninja clean -C $REPOS/bang
     PREFIX=$PREFIX ninja install -C $REPOS/bang
-    #luax-target bang "$(ls $REPOS/bang/{src,lib}/*.lua)" "$REPOS/bang/.build/version"
 }
 
 install-calculadoira()
@@ -250,7 +236,6 @@ install-calculadoira()
     gitclone https://github.com/CDSoft/calculadoira
     ninja clean -C $REPOS/calculadoira
     PREFIX=$PREFIX ninja install -C $REPOS/calculadoira
-    #luax-target calculadoira "$(ls $REPOS/calculadoira/src/*)"
 }
 
 install-ditaa()
@@ -274,7 +259,6 @@ install-lsvg()
     gitclone https://github.com/CDSoft/lsvg
     ninja clean -C $REPOS/lsvg
     PREFIX=$PREFIX ninja install -C $REPOS/lsvg
-    #luax-target lsvg "$(ls $REPOS/lsvg/src/*.lua)" "$REPOS/lsvg/.build/version"
 }
 
 compile-luax()
@@ -392,7 +376,6 @@ install-tagref()
     gitclone https://github.com/CDSoft/tagref
     ninja clean -C $REPOS/tagref
     PREFIX=$PREFIX ninja install -C $REPOS/tagref
-    #luax-target tagref "$(ls $REPOS/tagref/src/*.lua)"
 }
 
 install-typst()
@@ -445,7 +428,6 @@ install-ypp()
     gitclone https://github.com/CDSoft/ypp
     ninja clean -C $REPOS/ypp
     PREFIX=$PREFIX ninja install -C $REPOS/ypp
-    #luax-target ypp "$(ls $REPOS/ypp/src/*.lua)" "$(ls $REPOS/ypp/.build/src/*.lua)"
 }
 
 main()
