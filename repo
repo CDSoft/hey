@@ -59,12 +59,12 @@ build-target()
 
     build "$TARGET" all
     build "$TARGET" luax
-    build "$TARGET" bang luax
-    build "$TARGET" calculadoira luax
-    build "$TARGET" lsvg luax
+    build "$TARGET" bang
+    build "$TARGET" calculadoira
+    build "$TARGET" lsvg
     build "$TARGET" panda pandoc-latex-template pandoc-panam-css
-    build "$TARGET" tagref luax
-    build "$TARGET" ypp luax
+    build "$TARGET" tagref
+    build "$TARGET" ypp
     build "$TARGET" ditaa
     build "$TARGET" pandoc pandoc-latex-template pandoc-panam-css
     build "$TARGET" plantuml
