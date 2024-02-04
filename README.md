@@ -129,7 +129,7 @@ $ curl -sSL http://cdelord.fr/hey/bang-linux-x86_64-musl | sh
 ### Windows
 
 There is no install script.
-Windows users must download the ZIP archive and extract it manually
+Windows users must download the 7-Zip archive and extract it manually
 (or upgrade Windows to a better OS, e.g. Linux ;-).
 
 ## Available binary archives

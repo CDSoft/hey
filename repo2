@@ -1,0 +1,546 @@
+#!/bin/bash
+
+# This file is part of hey.
+#
+# hey is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# hey is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with hey.  If not, see <https://www.gnu.org/licenses/>.
+#
+# For further information about hey you can visit
+# https://cdelord.fr/hey
+
+TARGETS=(
+linux-x86_64
+linux-x86_64-musl
+linux-aarch64
+linux-aarch64-musl
+macos-x86_64
+macos-aarch64
+windows-x86_64
+)
+
+OUT=$1
+if ! [ -d "$OUT" ]
+then
+    echo "usage: repo <output directory>"
+    exit 1
+fi
+
+set -e
+
+BUILD=~/.local/var/cache/hey
+SRC=$BUILD/src
+DIST=$BUILD/dist
+TAGS=$BUILD/tags
+
+OUTPUTS=(hey)
+
+#####################################################################
+# helpers
+#####################################################################
+
+function gitclone()
+{
+    local URL="$1"
+    local DEST="$2"
+
+    if [ -d "$DEST" ]
+    then
+        ( cd "$DEST" && git checkout master && git fetch && git rebase )
+    else
+        git clone "$URL" "$DEST"
+    fi
+}
+
+function archive()
+{
+    local NAME="$1"
+    local ROOT="$2"
+    case "$NAME" in
+        (*windows*)
+            rm -f "$DIST/$NAME.7z";
+            ( cd "$(dirname "$ROOT")" && 7z a -r -bd "$DIST/$NAME.7z" "$(basename "$ROOT")" ) ;;
+        (*) XZ_OPT=-6 tar -cJf "$DIST/$NAME.tar.xz" -C "$(dirname "$ROOT")" "$(basename "$ROOT")" ;;
+    esac
+}
+
+tag_name()
+{
+    local repo="$1"
+    local request="https://api.github.com/repos/$repo/releases/latest"
+    local tag_file
+    tag_file="$TAGS/$(basename "$repo")"
+    mkdir -p "$TAGS"
+    local age=$(( $(date +%s) - $(stat -c %Y -- "$tag_file" 2>/dev/null || echo 0) ))
+    if [ "$age" -gt 7200 ]
+    then
+        curl -sSL "$request" | jq -r .tag_name > "$tag_file"
+        touch "$tag_file"
+    fi
+    cat "$tag_file"
+}
+
+#####################################################################
+# LuaX
+#####################################################################
+
+mkdir -p $SRC
+
+gitclone https://github.com/CDSoft/luax $SRC/luax
+
+(   cd $SRC/luax
+    ninja -f bootstrap.ninja
+    mkdir -p $DIST/_host
+    PREFIX=$DIST/_host ninja install
+)
+eval "$($DIST/_host/bin/luax env)"
+
+for target in "${TARGETS[@]}"
+do
+    (   cd $SRC/luax
+        luax tools/bang -o "build-$target.ninja" -- "$target"
+        mkdir -p "$DIST/$target/"{cdsoft,luax}
+        PREFIX=$DIST/$target/cdsoft ninja -f "build-$target.ninja" install
+        PREFIX=$DIST/$target/luax   ninja -f "build-$target.ninja" install
+    ) &
+done
+wait
+
+for target in "${TARGETS[@]}"
+do
+    archive "luax-$target" "$DIST/$target/luax" &
+done
+
+#####################################################################
+# Bang
+#####################################################################
+
+gitclone https://github.com/CDSoft/bang $SRC/bang
+
+(   cd $SRC/bang
+    PREFIX=$DIST/_host ninja install
+)
+
+for target in "${TARGETS[@]}"
+do
+    (   cd $SRC/bang
+        bang -o "build-$target.ninja" -- "$target"
+        mkdir -p "$DIST/$target/bang"
+        PREFIX=$DIST/$target/cdsoft ninja -f "build-$target.ninja" install
+        PREFIX=$DIST/$target/bang   ninja -f "build-$target.ninja" install
+    )
+done
+
+for target in "${TARGETS[@]}"
+do
+    archive "bang-$target" "$DIST/$target/bang" &
+done
+
+#####################################################################
+# Calculadoira
+#####################################################################
+
+gitclone https://github.com/CDSoft/calculadoira $SRC/calculadoira
+
+for target in "${TARGETS[@]}"
+do
+    (   cd $SRC/calculadoira
+        bang -o "build-$target.ninja" -- "$target"
+        mkdir -p "$DIST/$target/calculadoira"
+        PREFIX=$DIST/$target/cdsoft       ninja -f "build-$target.ninja" install
+        PREFIX=$DIST/$target/calculadoira ninja -f "build-$target.ninja" install
+    )
+done
+
+for target in "${TARGETS[@]}"
+do
+    archive "calculadoira-$target" "$DIST/$target/calculadoira" &
+done
+
+#####################################################################
+# lsvg
+#####################################################################
+
+gitclone https://github.com/CDSoft/lsvg $SRC/lsvg
+
+for target in "${TARGETS[@]}"
+do
+    (   cd $SRC/lsvg
+        bang -o "build-$target.ninja" -- "$target"
+        mkdir -p "$DIST/$target/lsvg"
+        PREFIX=$DIST/$target/cdsoft ninja -f "build-$target.ninja" install
+        PREFIX=$DIST/$target/lsvg   ninja -f "build-$target.ninja" install
+    )
+done
+
+for target in "${TARGETS[@]}"
+do
+    archive "lsvg-$target" "$DIST/$target/lsvg" &
+done
+
+#####################################################################
+# tagref
+#####################################################################
+
+gitclone https://github.com/CDSoft/tagref $SRC/tagref
+
+for target in "${TARGETS[@]}"
+do
+    (   cd $SRC/tagref
+        bang -o "build-$target.ninja" -- "$target"
+        mkdir -p "$DIST/$target/tagref"
+        PREFIX=$DIST/$target/cdsoft ninja -f "build-$target.ninja" install
+        PREFIX=$DIST/$target/tagref ninja -f "build-$target.ninja" install
+    )
+done
+
+for target in "${TARGETS[@]}"
+do
+    archive "tagref-$target" "$DIST/$target/tagref" &
+done
+
+#####################################################################
+# ypp
+#####################################################################
+
+gitclone https://github.com/CDSoft/ypp $SRC/ypp
+
+for target in "${TARGETS[@]}"
+do
+    (   cd $SRC/ypp
+        bang -o "build-$target.ninja" -- "$target"
+        mkdir -p "$DIST/$target/ypp"
+        PREFIX=$DIST/$target/cdsoft ninja -f "build-$target.ninja" install
+        PREFIX=$DIST/$target/ypp    ninja -f "build-$target.ninja" install
+    )
+done
+
+for target in "${TARGETS[@]}"
+do
+    archive "ypp-$target" "$DIST/$target/ypp" &
+done
+
+#####################################################################
+# panda
+#####################################################################
+
+gitclone https://github.com/CDSoft/panda $SRC/panda
+
+for target in "${TARGETS[@]}"
+do
+    (   cd $SRC/panda
+        bang -o "build-$target.ninja" -- "$target"
+        mkdir -p "$DIST/$target/panda"
+        PREFIX=$DIST/$target/cdsoft ninja -f "build-$target.ninja" install
+        PREFIX=$DIST/$target/panda  ninja -f "build-$target.ninja" install
+    )
+done
+
+for target in "${TARGETS[@]}"
+do
+    archive "panda-$target" "$DIST/$target/panda" &
+done
+
+#####################################################################
+# Ditaa
+#####################################################################
+
+DITAA_VERSION=$(tag_name stathissideris/ditaa)
+mkdir -p $SRC/ditaa
+[ -f "$SRC/ditaa/ditaa-${DITAA_VERSION#v}-standalone.jar" ] \
+    || wget "https://github.com/stathissideris/ditaa/releases/download/${DITAA_VERSION}/ditaa-${DITAA_VERSION#v}-standalone.jar" \
+        -O "$SRC/ditaa/ditaa-${DITAA_VERSION#v}-standalone.jar"
+for target in "${TARGETS[@]}"
+do
+    mkdir -p "$DIST/$target/ditaa/bin"
+    cp -v "$SRC/ditaa/ditaa-${DITAA_VERSION#v}-standalone.jar" "$DIST/$target/cdsoft/bin/ditaa.jar"
+    cp -v "$SRC/ditaa/ditaa-${DITAA_VERSION#v}-standalone.jar" "$DIST/$target/ditaa/bin/ditaa.jar"
+done
+
+for target in "${TARGETS[@]}"
+do
+    archive "ditaa-$target" "$DIST/$target/ditaa" &
+done
+
+#####################################################################
+# PlantUML
+#####################################################################
+
+PLANTUML_VERSION=$(tag_name plantuml/plantuml)
+mkdir -p $SRC/plantuml
+[ -f "$SRC/plantuml/plantuml-pdf-${PLANTUML_VERSION#v}.jar" ] \
+    || wget "https://github.com/plantuml/plantuml/releases/download/${PLANTUML_VERSION}/plantuml-pdf-${PLANTUML_VERSION#v}.jar" \
+        -O "$SRC/plantuml/plantuml-pdf-${PLANTUML_VERSION#v}.jar"
+for target in "${TARGETS[@]}"
+do
+    mkdir -p "$DIST/$target/plantuml/bin"
+    cp -v "$SRC/plantuml/plantuml-pdf-${PLANTUML_VERSION#v}.jar" "$DIST/$target/cdsoft/bin/plantuml.jar"
+    cp -v "$SRC/plantuml/plantuml-pdf-${PLANTUML_VERSION#v}.jar" "$DIST/$target/plantuml/bin/plantuml.jar"
+done
+
+for target in "${TARGETS[@]}"
+do
+    archive "plantuml-$target" "$DIST/$target/plantuml" &
+done
+
+#####################################################################
+# Pandoc
+#####################################################################
+
+PANDOC_VERSION=$(tag_name jgm/pandoc)
+for target in "${TARGETS[@]}"
+do
+    mkdir -p "$SRC/pandoc/$target" "$DIST/$target/pandoc/bin/"
+    case "$target" in
+        (linux-x86_64*)
+            PANDOC_URL=https://github.com/jgm/pandoc/releases/download/${PANDOC_VERSION}/pandoc-${PANDOC_VERSION}-linux-amd64.tar.gz
+            [ -f "$SRC/pandoc/$(basename "$PANDOC_URL")" ] || wget -c "$PANDOC_URL" -O "$SRC/pandoc/$(basename "$PANDOC_URL")"
+            tar -C "$SRC/pandoc/$target/" -xzf "$SRC/pandoc/$(basename "$PANDOC_URL")"
+            cp -av "$SRC/pandoc/$target/pandoc-${PANDOC_VERSION}/bin"/* "$DIST/$target/cdsoft/bin/"
+            cp -av "$SRC/pandoc/$target/pandoc-${PANDOC_VERSION}/bin"/* "$DIST/$target/pandoc/bin/"
+            ;;
+        (linux-aarch64*)
+            PANDOC_URL=https://github.com/jgm/pandoc/releases/download/${PANDOC_VERSION}/pandoc-${PANDOC_VERSION}-linux-arm64.tar.gz
+            [ -f "$SRC/pandoc/$(basename "$PANDOC_URL")" ] || wget -c "$PANDOC_URL" -O "$SRC/pandoc/$(basename "$PANDOC_URL")"
+            tar -C "$SRC/pandoc/$target/" -xzf "$SRC/pandoc/$(basename "$PANDOC_URL")"
+            cp -av "$SRC/pandoc/$target/pandoc-${PANDOC_VERSION}/bin"/* "$DIST/$target/cdsoft/bin/"
+            cp -av "$SRC/pandoc/$target/pandoc-${PANDOC_VERSION}/bin"/* "$DIST/$target/pandoc/bin/"
+            ;;
+        (windows-x86_64*)
+            PANDOC_URL=https://github.com/jgm/pandoc/releases/download/${PANDOC_VERSION}/pandoc-${PANDOC_VERSION}-windows-x86_64.zip
+            [ -f "$SRC/pandoc/$(basename "$PANDOC_URL")" ] || wget -c "$PANDOC_URL" -O "$SRC/pandoc/$(basename "$PANDOC_URL")"
+            unzip -o -q "$SRC/pandoc/$(basename "$PANDOC_URL")" -d "$SRC/pandoc/$target/"
+            cp -av "$SRC/pandoc/$target/pandoc-${PANDOC_VERSION}"/*.exe "$DIST/$target/cdsoft/bin/"
+            cp -av "$SRC/pandoc/$target/pandoc-${PANDOC_VERSION}"/*.exe "$DIST/$target/pandoc/bin/"
+            ;;
+        (macos-x86_64*)
+            PANDOC_URL=https://github.com/jgm/pandoc/releases/download/${PANDOC_VERSION}/pandoc-${PANDOC_VERSION}-x86_64-macOS.zip
+            [ -f "$SRC/pandoc/$(basename "$PANDOC_URL")" ] || wget -c "$PANDOC_URL" -O "$SRC/pandoc/$(basename "$PANDOC_URL")"
+            unzip -o -q "$SRC/pandoc/$(basename "$PANDOC_URL")" -d "$SRC/pandoc/$target/"
+            cp -av "$SRC/pandoc/$target/pandoc-${PANDOC_VERSION}-x86_64/bin"/* "$DIST/$target/cdsoft/bin/"
+            cp -av "$SRC/pandoc/$target/pandoc-${PANDOC_VERSION}-x86_64/bin"/* "$DIST/$target/pandoc/bin/"
+            ;;
+        (macos-aarch64*)
+            PANDOC_URL=https://github.com/jgm/pandoc/releases/download/${PANDOC_VERSION}/pandoc-${PANDOC_VERSION}-arm64-macOS.zip
+            [ -f "$SRC/pandoc/$(basename "$PANDOC_URL")" ] || wget -c "$PANDOC_URL" -O "$SRC/pandoc/$(basename "$PANDOC_URL")"
+            unzip -o -q "$SRC/pandoc/$(basename "$PANDOC_URL")" -d "$SRC/pandoc/$target/"
+            cp -av "$SRC/pandoc/$target/pandoc-${PANDOC_VERSION}-arm64/bin"/* "$DIST/$target/cdsoft/bin/"
+            cp -av "$SRC/pandoc/$target/pandoc-${PANDOC_VERSION}-arm64/bin"/* "$DIST/$target/pandoc/bin/"
+            ;;
+        (*) echo "$target: unsupported platform for Pandoc"; exit 1 ;;
+    esac
+done
+
+gitclone https://github.com/Wandmalfarbe/pandoc-latex-template.git $SRC/pandoc-latex-template
+gitclone https://github.com/CDSoft/pan-am $SRC/pan-am
+
+for target in "${TARGETS[@]}"
+do
+    mkdir -p "$DIST/$target/cdsoft/share/pandoc" "$DIST/$target/pandoc/share/pandoc"
+    cp -v $SRC/pandoc-latex-template/eisvogel.tex "$DIST/$target/cdsoft/share/pandoc/"
+    cp -v $SRC/pandoc-latex-template/eisvogel.tex "$DIST/$target/pandoc/share/pandoc/"
+    cp -v $SRC/pan-am/styling.css "$DIST/$target/cdsoft/share/pandoc/panam.css"
+    cp -v $SRC/pan-am/styling.css "$DIST/$target/pandoc/share/pandoc/panam.css"
+done
+
+for target in "${TARGETS[@]}"
+do
+    archive "pandoc-$target" "$DIST/$target/pandoc" &
+done
+
+#####################################################################
+# Typst
+#####################################################################
+
+TYPST_VERSION=$(tag_name typst/typst)
+mkdir -p "$SRC/typst/$TYPST_VERSION"
+for target in "${TARGETS[@]}"
+do
+    mkdir -p "$SRC/typst/$target" "$DIST/$target/typst/bin/"
+    case "$target" in
+        (linux-x86_64*)
+            TYPST_URL=https://github.com/typst/typst/releases/download/${TYPST_VERSION}/typst-x86_64-unknown-linux-musl.tar.xz
+            [ -f "$SRC/typst/$TYPST_VERSION/$(basename "$TYPST_URL")" ] || wget -c "$TYPST_URL" -O "$SRC/typst/$TYPST_VERSION/$(basename "$TYPST_URL")"
+            tar -C "$SRC/typst/$target" -xJf "$SRC/typst/$TYPST_VERSION/$(basename "$TYPST_URL")"
+            cp -av "$SRC/typst/$target/typst-x86_64-unknown-linux-musl/typst" "$DIST/$target/cdsoft/bin/"
+            cp -av "$SRC/typst/$target/typst-x86_64-unknown-linux-musl/typst" "$DIST/$target/typst/bin/"
+            ;;
+        (linux-aarch64*)
+            TYPST_URL=https://github.com/typst/typst/releases/download/${TYPST_VERSION}/typst-aarch64-unknown-linux-musl.tar.xz
+            [ -f "$SRC/typst/$TYPST_VERSION/$(basename "$TYPST_URL")" ] || wget -c "$TYPST_URL" -O "$SRC/typst/$TYPST_VERSION/$(basename "$TYPST_URL")"
+            tar -C "$SRC/typst/$target" -xJf "$SRC/typst/$TYPST_VERSION/$(basename "$TYPST_URL")"
+            cp -av "$SRC/typst/$target/typst-aarch64-unknown-linux-musl/typst" "$DIST/$target/cdsoft/bin/"
+            cp -av "$SRC/typst/$target/typst-aarch64-unknown-linux-musl/typst" "$DIST/$target/typst/bin/"
+            ;;
+        (windows-x86_64*)
+            TYPST_URL=https://github.com/typst/typst/releases/download/${TYPST_VERSION}/typst-x86_64-pc-windows-msvc.zip
+            [ -f "$SRC/typst/$TYPST_VERSION/$(basename "$TYPST_URL")" ] || wget -c "$TYPST_URL" -O "$SRC/typst/$TYPST_VERSION/$(basename "$TYPST_URL")"
+            unzip -o -q "$SRC/typst/$TYPST_VERSION/$(basename "$TYPST_URL")" -d "$SRC/typst/$target/"
+            cp -av "$SRC/typst/$target/typst-x86_64-pc-windows-msvc/typst.exe" "$DIST/$target/cdsoft/bin/"
+            cp -av "$SRC/typst/$target/typst-x86_64-pc-windows-msvc/typst.exe" "$DIST/$target/typst/bin/"
+            ;;
+        (macos-x86_64*)
+            TYPST_URL=https://github.com/typst/typst/releases/download/${TYPST_VERSION}/typst-x86_64-apple-darwin.tar.xz
+            [ -f "$SRC/typst/$TYPST_VERSION/$(basename "$TYPST_URL")" ] || wget -c "$TYPST_URL" -O "$SRC/typst/$TYPST_VERSION/$(basename "$TYPST_URL")"
+            tar -C "$SRC/typst/$target" -xJf "$SRC/typst/$TYPST_VERSION/$(basename "$TYPST_URL")"
+            cp -av "$SRC/typst/$target/typst-x86_64-apple-darwin/typst" "$DIST/$target/cdsoft/bin/"
+            cp -av "$SRC/typst/$target/typst-x86_64-apple-darwin/typst" "$DIST/$target/typst/bin/"
+            ;;
+        (macos-aarch64*)
+            TYPST_URL=https://github.com/typst/typst/releases/download/${TYPST_VERSION}/typst-aarch64-apple-darwin.tar.xz
+            [ -f "$SRC/typst/$TYPST_VERSION/$(basename "$TYPST_URL")" ] || wget -c "$TYPST_URL" -O "$SRC/typst/$TYPST_VERSION/$(basename "$TYPST_URL")"
+            tar -C "$SRC/typst/$target" -xJf "$SRC/typst/$TYPST_VERSION/$(basename "$TYPST_URL")"
+            cp -av "$SRC/typst/$target/typst-aarch64-apple-darwin/typst" "$DIST/$target/cdsoft/bin/"
+            cp -av "$SRC/typst/$target/typst-aarch64-apple-darwin/typst" "$DIST/$target/typst/bin/"
+            ;;
+        (*) echo "$target: unsupported platform for Typst"; exit 1 ;;
+    esac
+done
+
+for target in "${TARGETS[@]}"
+do
+    archive "typst-$target" "$DIST/$target/typst" &
+done
+
+#####################################################################
+# Finalization
+#####################################################################
+
+for target in "${TARGETS[@]}"
+do
+    archive "cdsoft-$target" "$DIST/$target/cdsoft" &
+done
+
+echo "Finalizing..."
+wait
+
+#####################################################################
+# Package list
+#####################################################################
+
+INDEX=$BUILD/binaries.md
+cat <<EOF > "$INDEX"
+# CDSoft binaries
+
+@@[[
+function size(name)
+    local s = fs.stat(name).size
+    if s >= 1024*1024 then return ("**%d&nbsp;MB**"):format(s//(1024*1024)) end
+    return ("%d&nbsp;KB"):format(s//(1024))
+end
+]]
+
+@@ os.setlocale "C"
+
+Last update: @os.date "%D"
+
+EOF
+
+function index()
+{
+    local TARGET="$1"
+    local SOFT="$2"
+
+    local SOFT_NAME=$SOFT
+    local DESCR=""
+    case $SOFT in
+        cdsoft) DESCR="(all packages)" ;;
+    esac
+
+    local ARCHIVE="$DIST/$SOFT_NAME-$TARGET.tar.xz"
+    local SCRIPT="$DIST/$SOFT_NAME-$TARGET"
+    local ARCHIVE_NAME
+    local SCRIPT_NAME
+    ARCHIVE_NAME="$(basename "$ARCHIVE")"
+    SCRIPT_NAME="$(basename "$SCRIPT")"
+
+    local ARCHIVE_ZIP="$DIST/$SOFT_NAME-$TARGET.7z"
+    local ARCHIVE_ZIP_NAME
+    ARCHIVE_ZIP_NAME="$(basename "$ARCHIVE_ZIP")"
+
+    local LOCAL_URL="hey"
+    local URL="https://cdelord.fr/$LOCAL_URL"
+
+    case "$TARGET" in
+        *windows*)
+            echo "| [$SOFT_NAME]($LOCAL_URL/$ARCHIVE_ZIP_NAME) $DESCR | [$ARCHIVE_ZIP_NAME]($LOCAL_URL/$ARCHIVE_ZIP_NAME) | @size'$ARCHIVE_ZIP' |" >> "$INDEX"
+            OUTPUTS+=("$ARCHIVE_ZIP")
+            ;;
+        *)
+            echo "| [$SOFT_NAME]($LOCAL_URL/$ARCHIVE_NAME) $DESCR | \`curl $URL/$SCRIPT_NAME | sh\` | @size'$ARCHIVE' |" >> "$INDEX"
+            OUTPUTS+=("$ARCHIVE" "$SCRIPT")
+            cat <<EOF > "$SCRIPT"
+#!/usr/bin/env sh
+
+SOFT_NAME="$SOFT_NAME"
+ARCHIVE_NAME="$ARCHIVE_NAME"
+ARCHIVE_URL="$URL/\$ARCHIVE_NAME"
+
+set -e
+
+[ -z "\$PREFIX" ] && PREFIX=~/.local
+if ! [ -d \$PREFIX ]
+then
+    echo "\$PREFIX: not a directory"
+    exit 1
+fi
+
+tmp="\$(mktemp --directory --tmpdir hey.XXXXXX)"
+archive="\$tmp/\$ARCHIVE_NAME"
+trap 'rm -rf "\$tmp"' EXIT
+echo "Download \$ARCHIVE_URL"
+curl --fail --output "\$archive" "\$ARCHIVE_URL"
+echo "Install \$SOFT_NAME in \$PREFIX"
+tar xJvf "\$archive" --strip-components=1 -C "\$PREFIX"
+EOF
+            ;;
+    esac
+
+}
+
+for target in "${TARGETS[@]}"
+do
+    {
+        echo "## $target"
+        echo ""
+        case "$target" in
+            *windows*)  echo "| Package    | Zip file                  | Size |" ;;
+            *)          echo "| Package    | Command                   | Size |" ;;
+        esac
+                        echo "| :--------- | :------------------------ | ---: |"
+    } >> "$INDEX"
+
+    index "$target" cdsoft
+    index "$target" luax
+    index "$target" bang
+    index "$target" calculadoira
+    index "$target" lsvg
+    index "$target" panda
+    index "$target" tagref
+    index "$target" ypp
+    index "$target" ditaa
+    index "$target" pandoc
+    index "$target" plantuml
+    index "$target" typst
+
+    echo "" >> "$INDEX"
+
+done
+
+ypp "$INDEX" -o "$INDEX"
+OUTPUTS+=("$INDEX")
+
+#####################################################################
+# Update final repository
+#####################################################################
+
+cp -v "${OUTPUTS[@]}" "$OUT/"
