@@ -146,6 +146,7 @@ cmd-install()
 gitclone()
 {
     local url="$1"
+    local branch="$2"
     local dir
     dir=$(basename "$url")
     mkdir -p $REPOS
@@ -153,7 +154,7 @@ gitclone()
     then
         ( cd "$REPOS/$dir" && git fetch origin && git reset --hard origin/master && git rebase )
     else
-        git clone "$url" "$REPOS/$dir"
+        git clone -b "${branch:-master}" "$url" "$REPOS/$dir"
     fi
 }
 
@@ -266,8 +267,7 @@ compile-luax()
     once compile-luax || return
     title "LuaX compilation"
     gitclone https://github.com/CDSoft/luax
-    ( cd $REPOS/luax && tools/bang )
-    #ninja clean -C $REPOS/luax
+    ( cd $REPOS/luax && ninja -f bootstrap.ninja )
     ninja compile -C $REPOS/luax
     eval "$($REPOS/luax/.build/bin/luax env)"
 }
@@ -277,10 +277,13 @@ install-luax()
     compile-luax
     once luax || return
     title LuaX
-    # shellcheck disable=SC2086
-    ( cd $REPOS/luax && tools/bang -- $TARGET )
-    #ninja clean -C $REPOS/luax
-    PREFIX=$PREFIX ninja install -C $REPOS/luax
+    if [ -n "$TARGET" ]
+    then
+        luaxc install -t "$TARGET" -p $PREFIX
+    else
+        luaxc install -p $PREFIX
+    fi
+    install -v -t $PREFIX/bin $REPOS/luax/.build/bin/luaxc
 }
 
 install-panda()
