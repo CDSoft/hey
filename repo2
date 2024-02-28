@@ -130,7 +130,7 @@ done
 gitclone https://github.com/CDSoft/bang $SRC/bang
 
 (   cd $SRC/bang
-    ./bootstrap.sh compile
+    ./build.sh && ninja compile
     PREFIX=$DIST/_host ninja install
 )
 
