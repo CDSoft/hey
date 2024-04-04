@@ -18,16 +18,6 @@
 # For further information about hey you can visit
 # https://cdelord.fr/hey
 
-TARGETS=(
-linux-x86_64
-linux-x86_64-musl
-linux-aarch64
-linux-aarch64-musl
-macos-x86_64
-macos-aarch64
-windows-x86_64
-)
-
 OUT=$1
 if ! [ -d "$OUT" ]
 then
@@ -106,6 +96,8 @@ gitclone https://github.com/CDSoft/luax $SRC/luax
 OUTPUTS+=("$DIST/_host/bin/luaxc")
 
 eval "$($DIST/_host/bin/luax env)"
+
+readarray -t TARGETS < <( luax -e 'require"targets":foreach(function(t) print(t.name) end)' )
 
 for target in "${TARGETS[@]}"
 do
@@ -467,17 +459,17 @@ function index()
     ARCHIVE_NAME="$(basename "$ARCHIVE")"
     SCRIPT_NAME="$(basename "$SCRIPT")"
 
-    local ARCHIVE_ZIP="$DIST/$SOFT_NAME-$TARGET.7z"
-    local ARCHIVE_ZIP_NAME
-    ARCHIVE_ZIP_NAME="$(basename "$ARCHIVE_ZIP")"
+    local ARCHIVE_WIN="$DIST/$SOFT_NAME-$TARGET.7z"
+    local ARCHIVE_WIN_NAME
+    ARCHIVE_WIN_NAME="$(basename "$ARCHIVE_WIN")"
 
     local LOCAL_URL="hey"
     local URL="https://cdelord.fr/$LOCAL_URL"
 
     case "$TARGET" in
         *windows*)
-            echo "| [$SOFT_NAME]($LOCAL_URL/$ARCHIVE_ZIP_NAME) $DESCR | [$ARCHIVE_ZIP_NAME]($LOCAL_URL/$ARCHIVE_ZIP_NAME) | @size'$ARCHIVE_ZIP' |" >> "$INDEX"
-            OUTPUTS+=("$ARCHIVE_ZIP")
+            echo "| [$SOFT_NAME]($LOCAL_URL/$ARCHIVE_WIN_NAME) $DESCR | [$ARCHIVE_WIN_NAME]($LOCAL_URL/$ARCHIVE_WIN_NAME) | @size'$ARCHIVE_WIN' |" >> "$INDEX"
+            OUTPUTS+=("$ARCHIVE_WIN")
             ;;
         *)
             echo "| [$SOFT_NAME]($LOCAL_URL/$ARCHIVE_NAME) $DESCR | \`curl $URL/$SCRIPT_NAME | sh\` | @size'$ARCHIVE' |" >> "$INDEX"
