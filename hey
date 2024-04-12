@@ -99,8 +99,6 @@ check-prerequisites()
     check   tar         tar             tar             true
     check   unzip       zip             zip             true
     check   ninja       ninja-build     ninja-build     true
-    check   lz4         lz4             lz4             true
-    check   lua         lua             lua             true
 }
 
 check()
