@@ -265,7 +265,7 @@ compile-luax()
     once compile-luax || return
     title "LuaX compilation"
     gitclone https://github.com/CDSoft/luax
-    ( cd $REPOS/luax && ninja -f bootstrap.ninja )
+    ( cd $REPOS/luax && ./bootstrap.sh )
     ninja compile -C $REPOS/luax
     eval "$($REPOS/luax/.build/bin/luax env)"
 }
