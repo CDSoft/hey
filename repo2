@@ -46,7 +46,7 @@ function gitclone()
 
     if [ -d "$DEST" ]
     then
-        ( cd "$DEST" && git checkout master && git fetch && git rebase )
+        ( cd "$DEST" && git checkout "${BRANCH:-master}" && git fetch && git rebase )
     else
         git clone -b "${BRANCH:-master}" "$URL" "$DEST"
     fi
@@ -89,11 +89,10 @@ mkdir -p $SRC
 gitclone https://github.com/CDSoft/luax $SRC/luax
 
 (   cd $SRC/luax
-    ninja -f bootstrap.ninja
+    ./bootstrap.sh
     mkdir -p $DIST/_host
-    PREFIX="$DIST/_host" ninja install
+    PREFIX="$DIST/_host" ninja compile install
 )
-OUTPUTS+=("$DIST/_host/bin/luaxc")
 
 eval "$($DIST/_host/bin/luax env)"
 
@@ -102,11 +101,11 @@ readarray -t TARGETS < <( luax -e 'require"targets":foreach(function(t) print(t.
 for target in "${TARGETS[@]}"
 do
     (   cd $SRC/luax
-        mkdir -p "$DIST/$target/"{cdsoft,luax}
-        luaxc install -t "$target" -p "$DIST/$target/cdsoft"
-        luaxc install -t "$target" -p "$DIST/$target/luax"
-        install -v -t "$DIST/$target/cdsoft/bin" $DIST/_host/bin/luaxc
-        install -v -t "$DIST/$target/luax/bin" $DIST/_host/bin/luaxc
+        mkdir -p "$DIST/$target/"{cdsoft,luax}/{bin,lib}
+        cp ".build/dist/$target/bin"/* "$DIST/$target/cdsoft/bin/"
+        cp ".build/dist/$target/lib"/* "$DIST/$target/cdsoft/lib/"
+        cp ".build/dist/$target/bin"/* "$DIST/$target/luax/bin/"
+        cp ".build/dist/$target/lib"/* "$DIST/$target/luax/lib/"
     )
 done
 

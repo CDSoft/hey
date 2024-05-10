@@ -150,7 +150,7 @@ gitclone()
     mkdir -p $REPOS
     if [ -d "$REPOS/$dir" ]
     then
-        ( cd "$REPOS/$dir" && git fetch origin && git reset --hard origin/master && git rebase )
+        ( cd "$REPOS/$dir" && git fetch origin && git reset --hard origin/"${branch:-master}" && git rebase )
     else
         git clone -b "${branch:-master}" "$url" "$REPOS/$dir"
     fi
@@ -275,13 +275,15 @@ install-luax()
     compile-luax
     once luax || return
     title LuaX
+    mkdir -p "$PREFIX"/{bin,lib}
     if [ -n "$TARGET" ]
     then
-        luaxc install -t "$TARGET" -p $PREFIX
+        cp "$REPOS/luax/.build/dist/$TARGET/bin"/* "$PREFIX/bin/"
+        cp "$REPOS/luax/.build/dist/$TARGET/lib"/* "$PREFIX/lib/"
     else
-        luaxc install -p $PREFIX
+        cp "$REPOS/luax/.build/bin"/* "$PREFIX/bin/"
+        cp "$REPOS/luax/.build/lib"/* "$PREFIX/lib/"
     fi
-    install -v -t $PREFIX/bin $REPOS/luax/.build/bin/luaxc
 }
 
 install-panda()
