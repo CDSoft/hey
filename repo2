@@ -102,10 +102,10 @@ for target in "${TARGETS[@]}"
 do
     (   cd $SRC/luax
         mkdir -p "$DIST/$target/"{cdsoft,luax}/{bin,lib}
-        cp ".build/dist/$target/bin"/* "$DIST/$target/cdsoft/bin/"
-        cp ".build/dist/$target/lib"/* "$DIST/$target/cdsoft/lib/"
-        cp ".build/dist/$target/bin"/* "$DIST/$target/luax/bin/"
-        cp ".build/dist/$target/lib"/* "$DIST/$target/luax/lib/"
+        cp -f ".build/dist/$target/bin"/* "$DIST/$target/cdsoft/bin/"
+        cp -f ".build/dist/$target/lib"/* "$DIST/$target/cdsoft/lib/"
+        cp -f ".build/dist/$target/bin"/* "$DIST/$target/luax/bin/"
+        cp -f ".build/dist/$target/lib"/* "$DIST/$target/luax/lib/"
     )
 done
 
@@ -257,8 +257,8 @@ mkdir -p $SRC/ditaa
 for target in "${TARGETS[@]}"
 do
     mkdir -p "$DIST/$target/ditaa/bin"
-    cp -v "$SRC/ditaa/ditaa-${DITAA_VERSION#v}-standalone.jar" "$DIST/$target/cdsoft/bin/ditaa.jar"
-    cp -v "$SRC/ditaa/ditaa-${DITAA_VERSION#v}-standalone.jar" "$DIST/$target/ditaa/bin/ditaa.jar"
+    cp -f -v "$SRC/ditaa/ditaa-${DITAA_VERSION#v}-standalone.jar" "$DIST/$target/cdsoft/bin/ditaa.jar"
+    cp -f -v "$SRC/ditaa/ditaa-${DITAA_VERSION#v}-standalone.jar" "$DIST/$target/ditaa/bin/ditaa.jar"
 done
 
 for target in "${TARGETS[@]}"
@@ -278,8 +278,8 @@ mkdir -p $SRC/plantuml
 for target in "${TARGETS[@]}"
 do
     mkdir -p "$DIST/$target/plantuml/bin"
-    cp -v "$SRC/plantuml/plantuml-pdf-${PLANTUML_VERSION#v}.jar" "$DIST/$target/cdsoft/bin/plantuml.jar"
-    cp -v "$SRC/plantuml/plantuml-pdf-${PLANTUML_VERSION#v}.jar" "$DIST/$target/plantuml/bin/plantuml.jar"
+    cp -f -v "$SRC/plantuml/plantuml-pdf-${PLANTUML_VERSION#v}.jar" "$DIST/$target/cdsoft/bin/plantuml.jar"
+    cp -f -v "$SRC/plantuml/plantuml-pdf-${PLANTUML_VERSION#v}.jar" "$DIST/$target/plantuml/bin/plantuml.jar"
 done
 
 for target in "${TARGETS[@]}"
@@ -300,36 +300,36 @@ do
             PANDOC_URL=https://github.com/jgm/pandoc/releases/download/${PANDOC_VERSION}/pandoc-${PANDOC_VERSION}-linux-amd64.tar.gz
             [ -f "$SRC/pandoc/$(basename "$PANDOC_URL")" ] || wget -c "$PANDOC_URL" -O "$SRC/pandoc/$(basename "$PANDOC_URL")"
             tar -C "$SRC/pandoc/$target/" -xzf "$SRC/pandoc/$(basename "$PANDOC_URL")" --preserve-order
-            cp -av "$SRC/pandoc/$target/pandoc-${PANDOC_VERSION}/bin"/* "$DIST/$target/cdsoft/bin/"
-            cp -av "$SRC/pandoc/$target/pandoc-${PANDOC_VERSION}/bin"/* "$DIST/$target/pandoc/bin/"
+            cp -f -av "$SRC/pandoc/$target/pandoc-${PANDOC_VERSION}/bin"/* "$DIST/$target/cdsoft/bin/"
+            cp -f -av "$SRC/pandoc/$target/pandoc-${PANDOC_VERSION}/bin"/* "$DIST/$target/pandoc/bin/"
             ;;
         (linux-aarch64*)
             PANDOC_URL=https://github.com/jgm/pandoc/releases/download/${PANDOC_VERSION}/pandoc-${PANDOC_VERSION}-linux-arm64.tar.gz
             [ -f "$SRC/pandoc/$(basename "$PANDOC_URL")" ] || wget -c "$PANDOC_URL" -O "$SRC/pandoc/$(basename "$PANDOC_URL")"
             tar -C "$SRC/pandoc/$target/" -xzf "$SRC/pandoc/$(basename "$PANDOC_URL")" --preserve-order
-            cp -av "$SRC/pandoc/$target/pandoc-${PANDOC_VERSION}/bin"/* "$DIST/$target/cdsoft/bin/"
-            cp -av "$SRC/pandoc/$target/pandoc-${PANDOC_VERSION}/bin"/* "$DIST/$target/pandoc/bin/"
+            cp -f -av "$SRC/pandoc/$target/pandoc-${PANDOC_VERSION}/bin"/* "$DIST/$target/cdsoft/bin/"
+            cp -f -av "$SRC/pandoc/$target/pandoc-${PANDOC_VERSION}/bin"/* "$DIST/$target/pandoc/bin/"
             ;;
         (windows-x86_64*)
             PANDOC_URL=https://github.com/jgm/pandoc/releases/download/${PANDOC_VERSION}/pandoc-${PANDOC_VERSION}-windows-x86_64.zip
             [ -f "$SRC/pandoc/$(basename "$PANDOC_URL")" ] || wget -c "$PANDOC_URL" -O "$SRC/pandoc/$(basename "$PANDOC_URL")"
             unzip -o -q "$SRC/pandoc/$(basename "$PANDOC_URL")" -d "$SRC/pandoc/$target/"
-            cp -av "$SRC/pandoc/$target/pandoc-${PANDOC_VERSION}"/*.exe "$DIST/$target/cdsoft/bin/"
-            cp -av "$SRC/pandoc/$target/pandoc-${PANDOC_VERSION}"/*.exe "$DIST/$target/pandoc/bin/"
+            cp -f -av "$SRC/pandoc/$target/pandoc-${PANDOC_VERSION}"/*.exe "$DIST/$target/cdsoft/bin/"
+            cp -f -av "$SRC/pandoc/$target/pandoc-${PANDOC_VERSION}"/*.exe "$DIST/$target/pandoc/bin/"
             ;;
         (macos-x86_64*)
             PANDOC_URL=https://github.com/jgm/pandoc/releases/download/${PANDOC_VERSION}/pandoc-${PANDOC_VERSION}-x86_64-macOS.zip
             [ -f "$SRC/pandoc/$(basename "$PANDOC_URL")" ] || wget -c "$PANDOC_URL" -O "$SRC/pandoc/$(basename "$PANDOC_URL")"
             unzip -o -q "$SRC/pandoc/$(basename "$PANDOC_URL")" -d "$SRC/pandoc/$target/"
-            cp -av "$SRC/pandoc/$target/pandoc-${PANDOC_VERSION}-x86_64/bin"/* "$DIST/$target/cdsoft/bin/"
-            cp -av "$SRC/pandoc/$target/pandoc-${PANDOC_VERSION}-x86_64/bin"/* "$DIST/$target/pandoc/bin/"
+            cp -f -av "$SRC/pandoc/$target/pandoc-${PANDOC_VERSION}-x86_64/bin"/* "$DIST/$target/cdsoft/bin/"
+            cp -f -av "$SRC/pandoc/$target/pandoc-${PANDOC_VERSION}-x86_64/bin"/* "$DIST/$target/pandoc/bin/"
             ;;
         (macos-aarch64*)
             PANDOC_URL=https://github.com/jgm/pandoc/releases/download/${PANDOC_VERSION}/pandoc-${PANDOC_VERSION}-arm64-macOS.zip
             [ -f "$SRC/pandoc/$(basename "$PANDOC_URL")" ] || wget -c "$PANDOC_URL" -O "$SRC/pandoc/$(basename "$PANDOC_URL")"
             unzip -o -q "$SRC/pandoc/$(basename "$PANDOC_URL")" -d "$SRC/pandoc/$target/"
-            cp -av "$SRC/pandoc/$target/pandoc-${PANDOC_VERSION}-arm64/bin"/* "$DIST/$target/cdsoft/bin/"
-            cp -av "$SRC/pandoc/$target/pandoc-${PANDOC_VERSION}-arm64/bin"/* "$DIST/$target/pandoc/bin/"
+            cp -f -av "$SRC/pandoc/$target/pandoc-${PANDOC_VERSION}-arm64/bin"/* "$DIST/$target/cdsoft/bin/"
+            cp -f -av "$SRC/pandoc/$target/pandoc-${PANDOC_VERSION}-arm64/bin"/* "$DIST/$target/pandoc/bin/"
             ;;
         (*) echo "$target: unsupported platform for Pandoc"; exit 1 ;;
     esac
@@ -341,10 +341,10 @@ gitclone https://github.com/CDSoft/pan-am $SRC/pan-am
 for target in "${TARGETS[@]}"
 do
     mkdir -p "$DIST/$target/cdsoft/share/pandoc" "$DIST/$target/pandoc/share/pandoc"
-    cp -v $SRC/pandoc-latex-template/eisvogel.tex "$DIST/$target/cdsoft/share/pandoc/"
-    cp -v $SRC/pandoc-latex-template/eisvogel.tex "$DIST/$target/pandoc/share/pandoc/"
-    cp -v $SRC/pan-am/styling.css "$DIST/$target/cdsoft/share/pandoc/panam.css"
-    cp -v $SRC/pan-am/styling.css "$DIST/$target/pandoc/share/pandoc/panam.css"
+    cp -f -v $SRC/pandoc-latex-template/eisvogel.tex "$DIST/$target/cdsoft/share/pandoc/"
+    cp -f -v $SRC/pandoc-latex-template/eisvogel.tex "$DIST/$target/pandoc/share/pandoc/"
+    cp -f -v $SRC/pan-am/styling.css "$DIST/$target/cdsoft/share/pandoc/panam.css"
+    cp -f -v $SRC/pan-am/styling.css "$DIST/$target/pandoc/share/pandoc/panam.css"
 done
 
 for target in "${TARGETS[@]}"
@@ -366,36 +366,36 @@ do
             TYPST_URL=https://github.com/typst/typst/releases/download/${TYPST_VERSION}/typst-x86_64-unknown-linux-musl.tar.xz
             [ -f "$SRC/typst/$TYPST_VERSION/$(basename "$TYPST_URL")" ] || wget -c "$TYPST_URL" -O "$SRC/typst/$TYPST_VERSION/$(basename "$TYPST_URL")"
             tar -C "$SRC/typst/$target" -xJf "$SRC/typst/$TYPST_VERSION/$(basename "$TYPST_URL")" --preserve-order
-            cp -av "$SRC/typst/$target/typst-x86_64-unknown-linux-musl/typst" "$DIST/$target/cdsoft/bin/"
-            cp -av "$SRC/typst/$target/typst-x86_64-unknown-linux-musl/typst" "$DIST/$target/typst/bin/"
+            cp -f -av "$SRC/typst/$target/typst-x86_64-unknown-linux-musl/typst" "$DIST/$target/cdsoft/bin/"
+            cp -f -av "$SRC/typst/$target/typst-x86_64-unknown-linux-musl/typst" "$DIST/$target/typst/bin/"
             ;;
         (linux-aarch64*)
             TYPST_URL=https://github.com/typst/typst/releases/download/${TYPST_VERSION}/typst-aarch64-unknown-linux-musl.tar.xz
             [ -f "$SRC/typst/$TYPST_VERSION/$(basename "$TYPST_URL")" ] || wget -c "$TYPST_URL" -O "$SRC/typst/$TYPST_VERSION/$(basename "$TYPST_URL")"
             tar -C "$SRC/typst/$target" -xJf "$SRC/typst/$TYPST_VERSION/$(basename "$TYPST_URL")" --preserve-order
-            cp -av "$SRC/typst/$target/typst-aarch64-unknown-linux-musl/typst" "$DIST/$target/cdsoft/bin/"
-            cp -av "$SRC/typst/$target/typst-aarch64-unknown-linux-musl/typst" "$DIST/$target/typst/bin/"
+            cp -f -av "$SRC/typst/$target/typst-aarch64-unknown-linux-musl/typst" "$DIST/$target/cdsoft/bin/"
+            cp -f -av "$SRC/typst/$target/typst-aarch64-unknown-linux-musl/typst" "$DIST/$target/typst/bin/"
             ;;
         (windows-x86_64*)
             TYPST_URL=https://github.com/typst/typst/releases/download/${TYPST_VERSION}/typst-x86_64-pc-windows-msvc.zip
             [ -f "$SRC/typst/$TYPST_VERSION/$(basename "$TYPST_URL")" ] || wget -c "$TYPST_URL" -O "$SRC/typst/$TYPST_VERSION/$(basename "$TYPST_URL")"
             unzip -o -q "$SRC/typst/$TYPST_VERSION/$(basename "$TYPST_URL")" -d "$SRC/typst/$target/"
-            cp -av "$SRC/typst/$target/typst-x86_64-pc-windows-msvc/typst.exe" "$DIST/$target/cdsoft/bin/"
-            cp -av "$SRC/typst/$target/typst-x86_64-pc-windows-msvc/typst.exe" "$DIST/$target/typst/bin/"
+            cp -f -av "$SRC/typst/$target/typst-x86_64-pc-windows-msvc/typst.exe" "$DIST/$target/cdsoft/bin/"
+            cp -f -av "$SRC/typst/$target/typst-x86_64-pc-windows-msvc/typst.exe" "$DIST/$target/typst/bin/"
             ;;
         (macos-x86_64*)
             TYPST_URL=https://github.com/typst/typst/releases/download/${TYPST_VERSION}/typst-x86_64-apple-darwin.tar.xz
             [ -f "$SRC/typst/$TYPST_VERSION/$(basename "$TYPST_URL")" ] || wget -c "$TYPST_URL" -O "$SRC/typst/$TYPST_VERSION/$(basename "$TYPST_URL")"
             tar -C "$SRC/typst/$target" -xJf "$SRC/typst/$TYPST_VERSION/$(basename "$TYPST_URL")" --preserve-order
-            cp -av "$SRC/typst/$target/typst-x86_64-apple-darwin/typst" "$DIST/$target/cdsoft/bin/"
-            cp -av "$SRC/typst/$target/typst-x86_64-apple-darwin/typst" "$DIST/$target/typst/bin/"
+            cp -f -av "$SRC/typst/$target/typst-x86_64-apple-darwin/typst" "$DIST/$target/cdsoft/bin/"
+            cp -f -av "$SRC/typst/$target/typst-x86_64-apple-darwin/typst" "$DIST/$target/typst/bin/"
             ;;
         (macos-aarch64*)
             TYPST_URL=https://github.com/typst/typst/releases/download/${TYPST_VERSION}/typst-aarch64-apple-darwin.tar.xz
             [ -f "$SRC/typst/$TYPST_VERSION/$(basename "$TYPST_URL")" ] || wget -c "$TYPST_URL" -O "$SRC/typst/$TYPST_VERSION/$(basename "$TYPST_URL")"
             tar -C "$SRC/typst/$target" -xJf "$SRC/typst/$TYPST_VERSION/$(basename "$TYPST_URL")" --preserve-order
-            cp -av "$SRC/typst/$target/typst-aarch64-apple-darwin/typst" "$DIST/$target/cdsoft/bin/"
-            cp -av "$SRC/typst/$target/typst-aarch64-apple-darwin/typst" "$DIST/$target/typst/bin/"
+            cp -f -av "$SRC/typst/$target/typst-aarch64-apple-darwin/typst" "$DIST/$target/cdsoft/bin/"
+            cp -f -av "$SRC/typst/$target/typst-aarch64-apple-darwin/typst" "$DIST/$target/typst/bin/"
             ;;
         (*) echo "$target: unsupported platform for Typst"; exit 1 ;;
     esac
@@ -538,4 +538,4 @@ OUTPUTS+=("$INDEX")
 # Update final repository
 #####################################################################
 
-cp -v "${OUTPUTS[@]}" "$OUT/"
+cp -f -v "${OUTPUTS[@]}" "$OUT/"
