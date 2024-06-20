@@ -471,7 +471,7 @@ function index()
             OUTPUTS+=("$ARCHIVE_WIN")
             ;;
         *)
-            echo "| [$SOFT_NAME]($LOCAL_URL/$ARCHIVE_NAME) $DESCR | \`curl $URL/$SCRIPT_NAME | sh\` | @size'$ARCHIVE' |" >> "$INDEX"
+            echo "| [$SOFT_NAME]($LOCAL_URL/$ARCHIVE_NAME) $DESCR | \`curl -s $URL/$SCRIPT_NAME | sh\` | @size'$ARCHIVE' |" >> "$INDEX"
             OUTPUTS+=("$ARCHIVE" "$SCRIPT")
             cat <<EOF > "$SCRIPT"
 #!/usr/bin/env sh
@@ -493,13 +493,12 @@ tmp="\$(mktemp --directory --tmpdir hey.XXXXXX)"
 archive="\$tmp/\$ARCHIVE_NAME"
 trap 'rm -rf "\$tmp"' EXIT
 echo "Download \$ARCHIVE_URL"
-curl --fail --output "\$archive" "\$ARCHIVE_URL"
+curl --progress-bar --fail --output "\$archive" "\$ARCHIVE_URL"
 echo "Install \$SOFT_NAME in \$PREFIX"
 tar xJvf "\$archive" --strip-components=1 -C "\$PREFIX" --preserve-order
 EOF
             ;;
     esac
-
 }
 
 for target in "${TARGETS[@]}"
