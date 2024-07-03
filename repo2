@@ -335,7 +335,8 @@ do
     esac
 done
 
-gitclone https://github.com/Wandmalfarbe/pandoc-latex-template.git $SRC/pandoc-latex-template
+#gitclone https://github.com/Wandmalfarbe/pandoc-latex-template.git $SRC/pandoc-latex-template
+gitclone https://github.com/jvsteiner/pandoc-latex-template $SRC/pandoc-latex-template update-pandoc # temporary, until the patch is merged
 gitclone https://github.com/CDSoft/pan-am $SRC/pan-am
 
 for target in "${TARGETS[@]}"

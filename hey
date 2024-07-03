@@ -344,9 +344,10 @@ install-pandoc-latex-template()
 {
     once pandoc-latex-template || return
     title Pandoc LaTeX template
-    gitclone https://github.com/Wandmalfarbe/pandoc-latex-template.git
+    #gitclone https://github.com/Wandmalfarbe/pandoc-latex-template
+    gitclone https://github.com/jvsteiner/pandoc-latex-template update-pandoc # temporary, until the patch is merged
     mkdir -p $PREFIX/share/pandoc
-    cp -f -v $REPOS/pandoc-latex-template.git/eisvogel.tex $PREFIX/share/pandoc
+    cp -f -v $REPOS/pandoc-latex-template/eisvogel.tex $PREFIX/share/pandoc
 }
 
 install-pandoc-panam-css()
