@@ -159,7 +159,7 @@ gitclone()
 target()
 {
     case "$TARGET" in
-        ("")    [ -x $REPOS/luax/.build/bin/luax ] || compile-luax
+        ("")    [ -x $REPOS/luax/.build/bin/luax ] || compile-luax 1>&2
                 $REPOS/luax/.build/bin/luax -e 'print(sys.os.."-"..sys.arch)'
                 ;;
         (linux-x86_64*)    echo "linux-x86_64" ;;
