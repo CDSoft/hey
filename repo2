@@ -121,7 +121,8 @@ done
 gitclone https://github.com/CDSoft/bang $SRC/bang
 
 (   cd $SRC/bang
-    ./bang.sh && ninja compile
+    git submodule sync && git submodule update --init --recursive
+    ./boot.lua && ninja compile
     PREFIX=$DIST/_host ninja install
 )
 
