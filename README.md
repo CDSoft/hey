@@ -1,3 +1,8 @@
+> [!CAUTION]
+> This project is no longer maintained.
+> Precompiled binaries are now generated with [CDSoft/pub](https://github.com/CDSoft/pub)
+> and are available at [cdelord.fr/pub](https://cdelord.fr/pub).
+
 # hey
 
 `hey` is a set of tools to install some [CDSoft](https://github.com/CDSoft) programs and related softwares.
